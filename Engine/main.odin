@@ -39,8 +39,15 @@ main :: proc() {
     gl.load_up_to(3, 3, glfw.gl_set_proc_address)
 
     shader_dir := os.get_current_directory() // Get executable's directory
-    vert_path := fmt.tprintf("%s\\shaders\\vertex.glsl", shader_dir)
-    frag_path := fmt.tprintf("%s\\shaders\\fragment.glsl", shader_dir)
+
+    when ODIN_OS == .Darwin || ODIN_OS == .Linux  { // macOS uses forward slashes
+        vert_path := fmt.tprintf("%s/shaders/vertex.glsl", shader_dir)
+        frag_path := fmt.tprintf("%s/shaders/fragment.glsl", shader_dir)
+    } 
+    else { // Windows uses backslashes
+        vert_path := fmt.tprintf("%s\\shaders\\vertex.glsl", shader_dir)
+        frag_path := fmt.tprintf("%s\\shaders\\fragment.glsl", shader_dir)
+    }
 
     if !os.exists(vert_path) {
         fmt.eprintln("Vertex shader not found at:", vert_path)
