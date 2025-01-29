@@ -56,6 +56,7 @@ main :: proc() {
         fmt.eprintln("Failed to load shaders at path:", vert_path, frag_path)
         return
     }
+    fmt.println(vert_path, frag_path)
     defer gl.DeleteProgram(program)
 
     // Cube data (similar to WebGL buffer creation)
