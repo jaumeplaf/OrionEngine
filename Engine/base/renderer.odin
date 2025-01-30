@@ -20,7 +20,7 @@ initGL :: proc(width: i32, height: i32) {
     }
 
     // Create window (like creating a canvas element in WebGL)
-    GAME_WINDOW = glfw.CreateWindow(width, height, "Odin OpenGL Cube", nil, nil)
+    GAME_WINDOW = glfw.CreateWindow(width, height, "Orion", nil, nil)
     if GAME_WINDOW == nil {
         fmt.eprintln("Failed to create GLFW window")
         return

@@ -14,29 +14,8 @@ main :: proc() {
     
     // Cube data (similar to WebGL buffer creation)
     
-    //vertices := base.s_cube.vertices
-    //indices := base.s_cube.indices
-    vertices := [24]f32 {
-        // Positions
-        -0.5, -0.5, -0.5,
-         0.5, -0.5, -0.5,
-         0.5,  0.5, -0.5,
-        -0.5,  0.5, -0.5,
-        -0.5, -0.5,  0.5,
-         0.5, -0.5,  0.5,
-         0.5,  0.5,  0.5,
-        -0.5,  0.5,  0.5,
-    }
-
-    indices := [36]u16 {
-        //indices
-        0, 1, 2, 2, 3, 0, // Front face
-        4, 5, 6, 6, 7, 4, // Back face
-        0, 1, 5, 5, 4, 0, // Bottom face
-        2, 3, 7, 7, 6, 2, // Top face
-        0, 3, 7, 7, 4, 0, // Left face
-        1, 2, 6, 6, 5, 1, // Right face
-    }
+    vertices := base.s_cube.vertices
+    indices := base.s_cube.indices
     
     //VAO/VBO setup (like WebGL vertex array objects)
     vao, vbo, ebo: u32
@@ -51,11 +30,11 @@ main :: proc() {
 
     // Vertex Buffer (like WebGL ARRAY_BUFFER)
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-    gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices, gl.STATIC_DRAW)
+    gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(f32), raw_data(vertices), gl.STATIC_DRAW)
 
     // Element Buffer (like WebGL ELEMENT_ARRAY_BUFFER)
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices), &indices, gl.STATIC_DRAW)
+    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices) * size_of(u16), raw_data(indices), gl.STATIC_DRAW)
 
     // Position attribute (similar to vertexAttribPointer)
     gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3 * size_of(f32), 0)

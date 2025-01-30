@@ -4,7 +4,7 @@ import "core:fmt"
 
 Shape :: struct {
     vertices: []f32,
-    indices: []u32
+    indices: []u16
 }
 
 s_triangle := Shape{
@@ -13,7 +13,7 @@ s_triangle := Shape{
         0.5, -0.5, 0.0,
        -0.5, -0.5, 0.0
     },
-    indices = []u32{
+    indices = []u16{
         0, 1, 2
     },
 }
@@ -25,7 +25,7 @@ s_plane := Shape{
          0.5, 0.0,-0.5,
         -0.5, 0.0,-0.5
     },
-    indices = []u32{
+    indices = []u16{
         0, 1, 2, 
         0, 2, 3
     },
@@ -43,7 +43,7 @@ s_cube := Shape{
          0.5,  0.5,  0.5,
         -0.5,  0.5,  0.5,
     },
-    indices = []u32 {
+    indices = []u16 {
         //indices
         0, 1, 2, 2, 3, 0, // Front face
         4, 5, 6, 6, 7, 4, // Back face
