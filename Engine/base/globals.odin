@@ -1,4 +1,4 @@
-package base
+package orion
 
 import "core:fmt"
 import "vendor:glfw"

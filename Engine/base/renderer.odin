@@ -1,4 +1,4 @@
-package base
+package orion
 
 import "core:fmt"
 import "vendor:glfw"
@@ -35,5 +35,22 @@ initGL :: proc(width: i32, height: i32) {
 
     // Load OpenGL functions (automatic in WebGL, explicit here)
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
+}
+
+draw :: proc(meshes: ^[]StaticMesh) {
+    // Render
+    gl.ClearColor(0.5, 0.5, 0.5, 1.0)  // 50% gray background
+    gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    gl.Enable(gl.DEPTH_TEST)
+
+    for mesh in meshes {
+        gl.UseProgram(mesh.material.shader.program)
+        gl.BindVertexArray(mesh.vao)
+        gl.DrawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, nil)
+    }
+
+    glfw.SwapBuffers(GAME_WINDOW)
+    glfw.PollEvents()
+
 }
 
