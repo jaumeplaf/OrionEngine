@@ -10,7 +10,7 @@ import "core:time"
 
 keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
 	context = runtime.default_context()
-	if key == glfw.KEY_ESCAPE && action == glfw.PRESS { EXIT_APPLICATION = true}
+	if key == glfw.KEY_ESCAPE && action == glfw.PRESS { GAME.EXIT = true}
 	else if key == glfw.KEY_W && action == glfw.PRESS { fmt.println("W pressed") }
 	else if key == glfw.KEY_S && action == glfw.PRESS { fmt.println("S pressed") }
 	else if key == glfw.KEY_A && action == glfw.PRESS { fmt.println("A pressed") }
@@ -38,6 +38,6 @@ scrollCallback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
 framebufferSizeCallback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	context = runtime.default_context()
 	//fmt.println("Framebuffer resized: ", "w-", width, "h-", height)
-	ASPECT_RATIO = getAspectRatio_i32(width, height)
-	RESIZE_WINDOW = true //this initializes the RESIZE_WINDOW event	
+	GAME.RATIO = getAspectRatio_i32(width, height)
+	GAME.RESIZE = true //this initializes the RESIZE_WINDOW event	
 }

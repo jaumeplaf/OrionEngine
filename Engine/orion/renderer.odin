@@ -20,18 +20,18 @@ initGL :: proc(width: i32, height: i32) {
     }
 
     // Create window (like creating a canvas element in WebGL)
-    GAME_WINDOW = glfw.CreateWindow(width, height, "Orion", nil, nil)
-    if GAME_WINDOW == nil {
+    GAME.WINDOW = glfw.CreateWindow(width, height, "Orion", nil, nil)
+    if GAME.WINDOW == nil {
         fmt.eprintln("Failed to create GLFW window")
         return
     }
 
-    glfw.MakeContextCurrent(GAME_WINDOW)
+    glfw.MakeContextCurrent(GAME.WINDOW)
     //Enable callbacks
-	glfw.SetKeyCallback(GAME_WINDOW, keyCallback)
-	glfw.SetMouseButtonCallback(GAME_WINDOW, mouseCallback)
-	glfw.SetCursorPosCallback(GAME_WINDOW, cursorPositionCallback)
-	glfw.SetFramebufferSizeCallback(GAME_WINDOW, framebufferSizeCallback)
+	glfw.SetKeyCallback(GAME.WINDOW, keyCallback)
+	glfw.SetMouseButtonCallback(GAME.WINDOW, mouseCallback)
+	glfw.SetCursorPosCallback(GAME.WINDOW, cursorPositionCallback)
+	glfw.SetFramebufferSizeCallback(GAME.WINDOW, framebufferSizeCallback)
 
     // Load OpenGL functions (automatic in WebGL, explicit here)
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
@@ -49,7 +49,7 @@ draw :: proc(meshes: ^[]StaticMesh) {
         gl.DrawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, nil)
     }
 
-    glfw.SwapBuffers(GAME_WINDOW)
+    glfw.SwapBuffers(GAME.WINDOW)
     glfw.PollEvents()
 
 }

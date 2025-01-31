@@ -4,7 +4,7 @@ import "core:fmt"
 import "vendor:glfw"
 
 gameLoop :: proc(objects: ^[]StaticMesh) { 
-    for !glfw.WindowShouldClose(GAME_WINDOW) && EXIT_APPLICATION == false {
+    for !glfw.WindowShouldClose(GAME.WINDOW) && GAME.EXIT == false {
         draw(objects)
 
     }
