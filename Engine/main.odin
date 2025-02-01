@@ -7,15 +7,48 @@ import m "core:math/linalg/glsl"
 import "vendor:glfw"
 import "orion"
 
-
 main :: proc() {
+    //Initialize pre-game
+    fmt.println("Main started")
+    orion.construct(800, 600)
+    fmt.println("Construct done")
+    //Get scene entities
+    scene01 := initScene01()
+    fmt.println("Scene initialized")
+    //Run game loop
+    orion.run(&scene01)
+}
+
+initScene01 :: proc() -> orion.Scene {
+    //Initialize managers and scene
+    entity_manager01 : orion.EntityManager
+    component_manager01 : orion.ComponentManager
+    event_manager01 : orion.EventManager
     
-    orion.initGL(800, 600)
-    sha_flat01 := orion.initShader("vertex.glsl", "fragment.glsl")
-    m_flat01 := orion.Material{&sha_flat01, m.vec4{0.39, 0.58, 0.93, 1.0}}
-    sm_cube01 := orion.initStaticMesh(orion.s_cube, m_flat01)
+    scene01 := orion.initScene("Scene 01", &entity_manager01, &component_manager01, &event_manager01)
+    
+    //Initialize camera
+    camera01 := orion.initCamera( //ID: 0
+        &component_manager01,   //manager
+        &entity_manager01,      //entities
+        70.0,                   //fov
+        m.vec3{0.0, 0.0, 10.0},  //position
+        m.vec3{0.0, 0.0, 0.0}   //target
+    )
+    fmt.println("Camera initialized")
+    //Initialize shaders
+    sha_base01 := orion.initShader("vertex.glsl", "fragment.glsl")
+    fmt.println("Shaders initialized")
+    //Initialize materials
+    mat_red01 := orion.initMaterial(&sha_base01, m.vec3{1.0, 0.0, 0.0})
+    
+    //Initialize entities
+    cube01 := orion.initStaticMesh(
+        &component_manager01,  //manager
+        &entity_manager01,     //entities
+        orion.s_cube,                //mesh
+        mat_red01              //material
+    )
 
-    objects := []orion.StaticMesh{sm_cube01}
-
-    orion.gameLoop(&objects)
+    return scene01
 }

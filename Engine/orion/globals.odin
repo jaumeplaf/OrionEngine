@@ -1,6 +1,8 @@
 package orion
 
 import "core:fmt"
+import "core:time"
+import m "core:math/linalg/glsl"
 import "vendor:glfw"
 
 //OpenGL version declaration
@@ -17,7 +19,19 @@ Game :: struct {
     RATIO : f32,
     EXIT : bool,
     RESIZE : bool,
-        
+
+    UP : m.vec3,
+
+    ACTIVE_CAMERA : entity_id,
+    START_TIME : time.Time,
+    NOW_TIME : time.Time,
+    PREV_TIME : time.Time,
+    GAME_TIME : f64,
+    DELTA_TIME : f64
 }
 
-GAME := Game{}
+GAME := Game{
+    EXIT = false,
+    RESIZE = false,
+    UP = m.vec3{0,1,0}
+}

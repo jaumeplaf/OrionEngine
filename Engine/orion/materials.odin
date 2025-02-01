@@ -48,3 +48,12 @@ initShader :: proc(vertex_path: string, fragement_path: string) -> Shader {
 
     return shader
 }
+
+initMaterial :: proc(shader: ^Shader, color: m.vec3) -> Material {
+    mat := Material{}
+    mat.shader = shader
+    mat.color = m.vec4{color.x, color.y, color.z, 1.0}
+    initUniforms(mat.shader)
+
+    return mat
+}

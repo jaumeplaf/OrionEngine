@@ -14,11 +14,8 @@ StaticMesh :: struct {
     buffer_texcoords : u32
 }
 
-initStaticMesh :: proc(model: Shape, material: Material) -> StaticMesh{
-    mesh_object := StaticMesh{}
-    mesh_object.mesh = model
-    mesh_object.material = material
-
+initMeshBuffers :: proc(manager: ^ComponentManager, id: entity_id){
+    mesh_object := manager.static_meshes[id]
     //VAO/VBO/EBO setup
     vao, vbo, ebo: u32
     gl.GenVertexArrays(1, &vao)
@@ -32,23 +29,44 @@ initStaticMesh :: proc(model: Shape, material: Material) -> StaticMesh{
 
     gl.BindVertexArray(vao)
 
-    // Vertex Buffer (like WebGL ARRAY_BUFFER)
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
     gl.BufferData(gl.ARRAY_BUFFER, len(mesh_object.mesh.vertices) * size_of(f32), raw_data(mesh_object.mesh.vertices), gl.STATIC_DRAW)
 
-    // Element Buffer (like WebGL ELEMENT_ARRAY_BUFFER)
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
     gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(mesh_object.mesh.indices) * size_of(u16), raw_data(mesh_object.mesh.indices), gl.STATIC_DRAW)
 
-    // Position attribute (similar to vertexAttribPointer)
     gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3 * size_of(f32), 0)
     gl.EnableVertexAttribArray(0)
 
-    return mesh_object
+    manager.static_meshes[id] = mesh_object
+}
+
+//Initialize static mesh component
+componentStaticMesh :: proc(manager : ^ComponentManager, id : entity_id, mesh : Shape, material : Material){
+    static_mesh := StaticMesh{}
+    static_mesh.mesh = mesh
+    static_mesh.material = material
+    manager.static_meshes[id] = static_mesh
+    initMeshBuffers(manager, id)
+}
+
+initStaticMesh :: proc(components: ^ComponentManager, entities: ^EntityManager, 
+    mesh: Shape, material: Material) -> StaticMesh{
+    id := entityCreate(entities)
+    componentTransform(components, id)
+    componentStaticMesh(components, id, mesh, material)
+    return components.static_meshes[id]
 }
 
 destroyStaticMesh :: proc(mesh: ^StaticMesh){
     gl.DeleteVertexArrays(1, &mesh.vao)
     gl.DeleteBuffers(1, &mesh.buffer_vertices)
     gl.DeleteBuffers(1, &mesh.buffer_indices)
+}
+
+//Change material of existing static mesh component
+setStaticMeshMaterial :: proc(manager : ^ComponentManager, id : entity_id, material : Material){
+    static_mesh := manager.static_meshes[id]
+    static_mesh.material = material
+    manager.static_meshes[id] = static_mesh
 }
