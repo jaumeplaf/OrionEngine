@@ -5,9 +5,18 @@ import "core:os"
 import m "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
 
+UniformValue :: union {
+    f32,
+    m.vec2,
+    m.vec3,
+    m.vec4,
+    m.mat4,
+}
+
 Material :: struct {
     shader : ^Shader,
-    color: m.vec4
+    base_color : m.vec4,
+    //other uniforms
 }
 
 Shader :: struct {
@@ -21,9 +30,16 @@ Shader :: struct {
     color : i32
 }
 
+material :: proc(shader: ^Shader, color: m.vec4) -> Material {
+    return Material{
+        shader = shader,
+        base_color = color,
+    }
+}
+
 //Initialize shader. Loads the vertex and fragment shaders from the shaders directory by name "name.glsl"
-initShader :: proc(vertex_path: string, fragement_path: string) -> Shader {
-    shader := Shader{}
+shader :: proc(vertex_path: string, fragement_path: string) -> ^Shader {
+    shader := new(Shader)
     shader_dir := os.get_current_directory() // Get executable's directory
 
     when ODIN_OS == .Darwin || ODIN_OS == .Linux  { //macOS and Linux use forward slashes
@@ -47,4 +63,12 @@ initShader :: proc(vertex_path: string, fragement_path: string) -> Shader {
     }
 
     return shader
+}
+
+destroyShader :: proc(shader: ^Shader) {
+    gl.DeleteProgram(shader.program)
+    free(shader)
+}
+destroyMaterial :: proc(material: ^Material) {
+    free(material)
 }

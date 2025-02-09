@@ -3,10 +3,9 @@ package orion
 import "core:fmt"
 import "vendor:glfw"
 
-gameLoop :: proc(objects: ^[]StaticMesh) { 
+gameLoop :: proc(scene: ^Scene) { 
     for !glfw.WindowShouldClose(GAME.WINDOW) && GAME.EXIT == false {
-        draw(objects)
-
+        draw(scene)
     }
 }
 

@@ -1,23 +1,31 @@
 package orion
 
 import "core:fmt"
+import m "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
 
-StaticMesh :: struct {
-    mesh : Shape,
-    material : Material,
-    vao: u32,
-    buffer_vertices : u32,
-    buffer_indices : u32,
-    buffer_normals : u32,
-    buffer_colors : u32,
-    buffer_texcoords : u32
+staticMesh :: proc(scene: Scene, mesh: Shape, material: Material) -> entity_id{
+    id := entityCreate(scene.entities)
+
+    meshCreate(scene, id, mesh, material)
+    transformCreate(scene.components, id, m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, m.vec3{1, 1, 1})
+
+    return id
 }
 
-initStaticMesh :: proc(model: Shape, material: Material) -> StaticMesh{
-    mesh_object := StaticMesh{}
-    mesh_object.mesh = model
-    mesh_object.material = material
+//Create a new entity with a static mesh and transform components
+meshCreate :: proc(scene: Scene, id: entity_id, mesh: Shape, material: Material){
+    scene.components.meshes[id] = StaticMesh{
+        mesh = mesh,
+        material = material,
+    }
+
+    initMeshBuffers(&scene.components.meshes[id])
+    
+}
+
+initMeshBuffers :: proc(mesh: ^StaticMesh){
+    mesh_object := mesh
 
     //VAO/VBO/EBO setup
     vao, vbo, ebo: u32
@@ -43,12 +51,12 @@ initStaticMesh :: proc(model: Shape, material: Material) -> StaticMesh{
     // Position attribute (similar to vertexAttribPointer)
     gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3 * size_of(f32), 0)
     gl.EnableVertexAttribArray(0)
-
-    return mesh_object
 }
 
-destroyStaticMesh :: proc(mesh: ^StaticMesh){
+meshDestroy :: proc(manager: ^ComponentManager, id: entity_id){
+    mesh := &manager.meshes[id]
     gl.DeleteVertexArrays(1, &mesh.vao)
     gl.DeleteBuffers(1, &mesh.buffer_vertices)
     gl.DeleteBuffers(1, &mesh.buffer_indices)
+    delete_key(&manager.meshes, id)
 }
