@@ -1,6 +1,7 @@
 package orion
 
 import "core:fmt"
+import "core:encoding/json"
 
 Scene :: struct {
     name : string,

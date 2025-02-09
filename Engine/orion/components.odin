@@ -20,7 +20,7 @@ initComponentManager :: proc() -> ^ComponentManager {
     return manager
 }
 
-destroyComponents :: proc(components: ^ComponentManager, id: entity_id) {
+destroyComponent :: proc(components: ^ComponentManager, id: entity_id) {
     // Check and destroy StaticMesh
     if mesh, ok := components.meshes[id]; ok {
         meshDestroy(components, id)

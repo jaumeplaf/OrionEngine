@@ -17,7 +17,7 @@ Game :: struct {
     RATIO : f32,
     EXIT : bool,
     RESIZE : bool,
-        
+    ACTIVE_SCENE: ^Scene
 }
 
-GAME := Game{}
+GAME := new(Game)
