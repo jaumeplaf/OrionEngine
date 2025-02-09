@@ -5,7 +5,7 @@ import "vendor:glfw"
 
 gameLoop :: proc(scene: ^Scene) { 
     for !glfw.WindowShouldClose(GAME.WINDOW) && GAME.EXIT == false {
-        draw(scene)
+        drawSystem(scene)
     }
 }
 

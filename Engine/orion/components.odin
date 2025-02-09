@@ -21,10 +21,8 @@ initComponentManager :: proc() -> ^ComponentManager {
 }
 
 destroyComponents :: proc(components: ^ComponentManager, id: entity_id) {
-    fmt.println("Destroying components for entity:", id)
     // Check and destroy StaticMesh
     if mesh, ok := components.meshes[id]; ok {
-        fmt.println("Destroying StaticMesh for entity:", id)
         meshDestroy(components, id)
     } else {
         fmt.println("No StaticMesh found for entity:", id)
@@ -32,7 +30,6 @@ destroyComponents :: proc(components: ^ComponentManager, id: entity_id) {
     
     // Check and destroy Transform
     if _, ok := components.transforms[id]; ok {
-        fmt.println("Destroying Transform for entity:", id)
         transformDestroy(components, id)
     } else {
         fmt.println("No Transform found for entity:", id)
@@ -40,7 +37,6 @@ destroyComponents :: proc(components: ^ComponentManager, id: entity_id) {
     
     // Check and destroy Camera
     if _, ok := components.cameras[id]; ok {
-        fmt.println("Destroying Camera for entity:", id)
         //destroy camera proc
         delete_key(&components.cameras, id)
     } else {
@@ -49,13 +45,11 @@ destroyComponents :: proc(components: ^ComponentManager, id: entity_id) {
     
     // Check and destroy Player
     if _, ok := components.players[id]; ok {
-        fmt.println("Destroying Player for entity:", id)
         //destroy player proc
         delete_key(&components.players, id)
     } else {
         fmt.println("No Player found for entity:", id)
     }
-    fmt.println("Components destroyed for entity:", id)
 }
 
 //Add component to handle world position, rotation and scale

@@ -36,15 +36,10 @@ entityCreate :: proc(entities : ^EntityManager) -> entity_id {
 }
 
 entityDestroy :: proc(scene: ^Scene, id: entity_id) {
-    fmt.println("Destroying entity")
     entities := scene.entities
-    fmt.println("entities fetched")
     components := scene.components
-    fmt.println("components fetched")
+
     destroyComponents(components, id)
-    fmt.printf("Entity %d destroyed\n", id)
     delete_key(&entities.alive, id)
-    fmt.printf("Entity %d removed from alive list\n", id)
     append(&entities.freed_ids, id)
-    fmt.printf("Entity %d added to freed list\n", id)
 }
