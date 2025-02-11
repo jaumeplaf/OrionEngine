@@ -61,6 +61,7 @@ Transform :: struct {
 
 //Add component to act as a rendering camera
 Camera :: struct {
+    style: CamStyle,
     fov: f32,
     position: m.vec3,
     target: m.vec3,
@@ -73,10 +74,18 @@ Camera :: struct {
     view_matrix: m.mat4,
     projection_matrix: m.mat4
 }
+
+CamStyle :: enum{
+    editor,
+    fps,
+    isometric,    
+}
+
 //Add component to handle static mesh rendering
 StaticMesh :: struct {
     mesh : Shape,
     material : Material,
+    model_matrix : m.mat4,
     vao: u32,
     buffer_vertices : u32,
     buffer_indices : u32,

@@ -21,12 +21,31 @@ keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods:
 }
 
 mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32) {
-	context = runtime.default_context()
-	fmt.println("Mouse clicked!")
+    context = runtime.default_context()
+    if action == glfw.PRESS {
+        switch button {
+        case glfw.MOUSE_BUTTON_LEFT:
+            fmt.println("Left mouse button clicked!")
+        case glfw.MOUSE_BUTTON_MIDDLE:
+            fmt.println("Middle mouse button clicked!")
+        case glfw.MOUSE_BUTTON_RIGHT:
+            fmt.println("Right mouse button clicked!")
+        }
+    } else if action == glfw.RELEASE {
+        switch button {
+        case glfw.MOUSE_BUTTON_LEFT:
+            fmt.println("Left mouse button released!")
+        case glfw.MOUSE_BUTTON_MIDDLE:
+            fmt.println("Middle mouse button released!")
+        case glfw.MOUSE_BUTTON_RIGHT:
+            fmt.println("Right mouse button released!")
+        }
+    }
 }
 
 cursorPositionCallback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
     context = runtime.default_context()
+	
 	//fmt.println("Mouse moved: ", "x-", xpos, "y-", ypos)
 }
 

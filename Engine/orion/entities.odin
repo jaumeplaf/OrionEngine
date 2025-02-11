@@ -22,7 +22,8 @@ initEntityManager :: proc() -> ^EntityManager {
 }
 
 //Manage entities
-entityCreate :: proc(entities : ^EntityManager) -> entity_id {
+entityCreate :: proc(scene: ^Scene) -> entity_id {
+    entities := scene.entities
     id: entity_id
     if len(entities.freed_ids) > 0 {
         id = pop(&entities.freed_ids)

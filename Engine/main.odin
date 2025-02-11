@@ -24,18 +24,20 @@ initScene01 :: proc() -> orion.Scene {
     component_manager := orion.initComponentManager()
     current_scene := orion.initScene("Scene01", entity_manager, component_manager)
 
-    ent0 := orion.entityCreate(entity_manager)
-    ent1 := orion.entityCreate(entity_manager)
-    ent2 := orion.entityCreate(entity_manager)
+    ent0 := orion.entityCreate(&current_scene)
+    ent1 := orion.entityCreate(&current_scene)
+    ent2 := orion.entityCreate(&current_scene)
     orion.entityDestroy(&current_scene, ent2)
-    ent3 := orion.entityCreate(entity_manager)
-    ent4 := orion.entityCreate(entity_manager)
+    ent3 := orion.entityCreate(&current_scene)
+    ent4 := orion.entityCreate(&current_scene)
     orion.entityDestroy(&current_scene, ent4)
-    ent5 := orion.entityCreate(entity_manager)
+    ent5 := orion.entityCreate(&current_scene)
 
     sha_flat02 := orion.shader("vertex.glsl", "fragment.glsl")
     m_flat02 := orion.Material{sha_flat02, m.vec4{0.39, 0.58, 0.93, 1.0}}
-    mesh01 := orion.staticMesh(current_scene, orion.s_cube, m_flat02)
+    mesh01 := orion.staticMesh(&current_scene, orion.s_cube, m_flat02)
+    orion.setTransform(&current_scene, mesh01, 
+        m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, m.vec3{0.25, 1, 1}) //To be implemented
 
     return current_scene
 }

@@ -41,3 +41,6 @@ debugComponents :: proc(scene: Scene) {
     fmt.println("=======================")
 }
 
+setMousePosition :: proc(x, y: f64){
+    GAME.MOUSE_POS = {f32(x), f32(y)}
+}

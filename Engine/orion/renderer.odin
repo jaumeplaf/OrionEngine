@@ -6,6 +6,7 @@ import gl "vendor:OpenGL"
 
 initGL :: proc(width: i32, height: i32) {
     // Initialize GLFW (similar to WebGL canvas context creation)
+
     if glfw.Init() != true {
         fmt.eprintln("Failed to initialize GLFW")
         return
@@ -30,6 +31,7 @@ initGL :: proc(width: i32, height: i32) {
     //Enable callbacks
 	glfw.SetKeyCallback(GAME.WINDOW, keyCallback)
 	glfw.SetMouseButtonCallback(GAME.WINDOW, mouseCallback)
+    glfw.SetScrollCallback(GAME.WINDOW, scrollCallback)
 	glfw.SetCursorPosCallback(GAME.WINDOW, cursorPositionCallback)
 	glfw.SetFramebufferSizeCallback(GAME.WINDOW, framebufferSizeCallback)
 

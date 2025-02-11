@@ -11,6 +11,14 @@ transformCreate :: proc(manager: ^ComponentManager, id: entity_id, position: m.v
     }
 }
 
+setTransform :: proc(scene: ^Scene, id: entity_id, position: m.vec3, rotation: m.vec3, scale: m.vec3){
+    scene.components.transforms[id] = Transform{
+        position = position,
+        rotation = rotation,
+        scale = scale,
+    }
+}
+
 transformDestroy :: proc(manager: ^ComponentManager, id: entity_id) {
     delete_key(&manager.transforms, id)
 }
