@@ -7,7 +7,6 @@ ComponentManager :: struct {
     transforms : map[entity_id]Transform,
     meshes : map[entity_id]StaticMesh,
     cameras : map[entity_id]Camera,
-    players : map[entity_id]Player,
 }
 
 initComponentManager :: proc() -> ^ComponentManager {
@@ -15,7 +14,6 @@ initComponentManager :: proc() -> ^ComponentManager {
     manager.transforms = make(map[entity_id]Transform)
     manager.meshes = make(map[entity_id]StaticMesh)
     manager.cameras = make(map[entity_id]Camera)
-    manager.players = make(map[entity_id]Player)
 
     return manager
 }
@@ -42,14 +40,6 @@ destroyComponent :: proc(components: ^ComponentManager, id: entity_id) {
     } else {
         fmt.println("No Camera found for entity:", id)
     }
-    
-    // Check and destroy Player
-    if _, ok := components.players[id]; ok {
-        //destroy player proc
-        delete_key(&components.players, id)
-    } else {
-        fmt.println("No Player found for entity:", id)
-    }
 }
 
 //Add component to handle world position, rotation and scale
@@ -72,7 +62,24 @@ Camera :: struct {
     pitch: f32,
     max_pitch : f32,
     view_matrix: m.mat4,
-    projection_matrix: m.mat4
+    projection_matrix: m.mat4,
+    base_speed: f32,
+    current_speed: f32,
+    sprint: bool,
+    sprint_mult: f32,
+    movement: CamMovement,
+    near_plane: f32,
+    far_plane: f32,
+}
+
+CamMovement :: enum{
+    idle,
+    forward,
+    left,
+    back,
+    right,
+    up,
+    down,
 }
 
 CamStyle :: enum{
@@ -92,11 +99,4 @@ StaticMesh :: struct {
     buffer_normals : u32,
     buffer_colors : u32,
     buffer_texcoords : u32
-}
-
-//Add component to handle player data
-Player :: struct {
-	camera:     ^Camera,
-	move_speed: f32,
-	state:      PlayerState,
 }

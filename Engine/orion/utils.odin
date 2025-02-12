@@ -37,7 +37,6 @@ debugComponents :: proc(scene: Scene) {
     fmt.printf("Transforms: %d\n", len(components.transforms))
     fmt.printf("Meshes: %d\n", len(components.meshes))
     fmt.printf("Cameras: %d\n", len(components.cameras))
-    fmt.printf("Players: %d\n", len(components.players))
     fmt.println("=======================")
 }
 

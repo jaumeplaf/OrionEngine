@@ -9,15 +9,44 @@ import "core:time"
 //Event callbacks
 
 keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
-	context = runtime.default_context()
-	if key == glfw.KEY_ESCAPE && action == glfw.PRESS { GAME.EXIT = true}
-	else if key == glfw.KEY_W && action == glfw.PRESS { fmt.println("W pressed") }
-	else if key == glfw.KEY_S && action == glfw.PRESS { fmt.println("S pressed") }
-	else if key == glfw.KEY_A && action == glfw.PRESS { fmt.println("A pressed") }
-	else if key == glfw.KEY_D && action == glfw.PRESS { fmt.println("D pressed") }
-	else if key == glfw.KEY_SPACE && action == glfw.PRESS { fmt.println("Space pressed") }
-	else if key == glfw.KEY_LEFT_SHIFT && action == glfw.PRESS { fmt.println("Shift pressed") }
-	else if key == glfw.KEY_LEFT_CONTROL && action == glfw.PRESS { fmt.println("Ctrl pressed") }
+    context = runtime.default_context()
+    if action == glfw.PRESS {
+        switch key {
+        case glfw.KEY_ESCAPE:
+            GAME.EXIT = true
+        case glfw.KEY_W:
+            fmt.println("W pressed")
+        case glfw.KEY_S:
+            fmt.println("S pressed")
+        case glfw.KEY_A:
+            fmt.println("A pressed")
+        case glfw.KEY_D:
+            fmt.println("D pressed")
+        case glfw.KEY_SPACE:
+            fmt.println("Space pressed")
+        case glfw.KEY_LEFT_SHIFT:
+            fmt.println("Shift pressed")
+        case glfw.KEY_LEFT_CONTROL:
+            fmt.println("Ctrl pressed")
+        }
+    } else if action == glfw.RELEASE {
+        switch key {
+        case glfw.KEY_W:
+            fmt.println("W released")
+        case glfw.KEY_S:
+            fmt.println("S released")
+        case glfw.KEY_A:
+            fmt.println("A released")
+        case glfw.KEY_D:
+            fmt.println("D released")
+        case glfw.KEY_SPACE:
+            fmt.println("Space released")
+        case glfw.KEY_LEFT_SHIFT:
+            fmt.println("Shift released")
+        case glfw.KEY_LEFT_CONTROL:
+            fmt.println("Ctrl released")
+        }
+    }
 }
 
 mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32) {
@@ -30,6 +59,7 @@ mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32)
             fmt.println("Middle mouse button clicked!")
         case glfw.MOUSE_BUTTON_RIGHT:
             fmt.println("Right mouse button clicked!")
+            //Activate rotate camera around position + wasd controls
         }
     } else if action == glfw.RELEASE {
         switch button {
