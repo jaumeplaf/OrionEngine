@@ -13,10 +13,6 @@ staticMesh :: proc(scene: ^Scene, mesh: Shape, material: Material) -> entity_id{
     return id
 }
 
-setMeshTransform :: proc(scene: ^Scene){
-
-}
-
 //Create a new entity with a static mesh and transform components
 meshCreate :: proc(scene: ^Scene, id: entity_id, mesh: Shape, material: Material){
     scene.components.meshes[id] = StaticMesh{
@@ -62,4 +58,11 @@ meshDestroy :: proc(manager: ^ComponentManager, id: entity_id){
     gl.DeleteBuffers(1, &mesh.buffer_vertices)
     gl.DeleteBuffers(1, &mesh.buffer_indices)
     delete_key(&manager.meshes, id)
+}
+
+setModelMatrix :: proc(mesh: ^StaticMesh, x,y,z,scale: f32){
+    identity := m.identity(m.mat4)
+    translate := m.mat4Translate(m.vec3{x,y,z})
+    scale := m.mat4Scale(m.vec3{scale,scale,scale})
+    mesh.model_matrix = identity * translate * scale
 }
