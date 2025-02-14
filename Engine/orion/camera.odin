@@ -4,7 +4,7 @@ import "core:fmt"
 import m "core:math/linalg/glsl"
 
 initCamera :: proc(scene: ^Scene, fov: f32, style: CamStyle = .fps, near: f32, far: f32) -> entity_id{
-    id := entityCreate(scene)
+    id := createEntity(scene)
     cam := cameraCreate(scene, id, fov, style, near, far)
     
     setProjectionMatrix(&cam)

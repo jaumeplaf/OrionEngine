@@ -38,7 +38,7 @@ material :: proc(shader: ^Shader, color: m.vec4) -> Material {
 }
 
 //Initialize shader. Loads the vertex and fragment shaders from the shaders directory by name "name.glsl"
-shader :: proc(vertex_path: string, fragement_path: string) -> ^Shader {
+createShader :: proc(vertex_path: string, fragement_path: string) -> ^Shader {
     shader := new(Shader)
     shader_dir := os.get_current_directory() // Get executable's directory
 

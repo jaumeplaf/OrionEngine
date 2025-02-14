@@ -22,7 +22,7 @@ initEntityManager :: proc() -> ^EntityManager {
 }
 
 //Manage entities
-entityCreate :: proc(scene: ^Scene) -> entity_id {
+createEntity :: proc(scene: ^Scene) -> entity_id {
     entities := scene.entities
     id: entity_id
     if len(entities.freed_ids) > 0 {
@@ -36,7 +36,7 @@ entityCreate :: proc(scene: ^Scene) -> entity_id {
     return id
 }
 
-entityDestroy :: proc(scene: ^Scene, id: entity_id) {
+destroyEntity :: proc(scene: ^Scene, id: entity_id) {
     entities := scene.entities
     components := scene.components
 

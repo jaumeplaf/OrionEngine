@@ -4,17 +4,18 @@ import "core:fmt"
 import m "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
 
-staticMesh :: proc(scene: ^Scene, mesh: Shape, material: Material) -> entity_id{
-    id := entityCreate(scene)
+//Create a new entity with a mesh and a transform component 
+initStaticMesh :: proc(scene: ^Scene, mesh: Shape, material: Material) -> entity_id{
+    id := createEntity(scene)
 
-    meshCreate(scene, id, mesh, material)
-    transformCreate(scene.components, id, m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, m.vec3{1, 1, 1})
+    createMesh(scene, id, mesh, material)
+    createTransform(scene.components, id, m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, m.vec3{1, 1, 1})
 
     return id
 }
 
-//Create a new entity with a static mesh and transform components
-meshCreate :: proc(scene: ^Scene, id: entity_id, mesh: Shape, material: Material){
+//Create a new mesh component on an entity
+createMesh :: proc(scene: ^Scene, id: entity_id, mesh: Shape, material: Material){
     scene.components.meshes[id] = StaticMesh{
         mesh = mesh,
         material = material,
