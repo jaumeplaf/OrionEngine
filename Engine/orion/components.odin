@@ -23,14 +23,18 @@ destroyComponent :: proc(components: ^ComponentManager, id: entity_id) {
     if mesh, ok := components.meshes[id]; ok {
         meshDestroy(components, id)
     } else {
-        fmt.println("No StaticMesh found for entity:", id)
+        if GAME.DEBUG{
+            fmt.println("No StaticMesh found for entity:", id)
+        }
     }
     
     // Check and destroy Transform
     if _, ok := components.transforms[id]; ok {
         transformDestroy(components, id)
     } else {
-        fmt.println("No Transform found for entity:", id)
+        if GAME.DEBUG{
+            fmt.println("No Transform found for entity:", id)
+        }
     }
     
     // Check and destroy Camera
@@ -38,7 +42,9 @@ destroyComponent :: proc(components: ^ComponentManager, id: entity_id) {
         //destroy camera proc
         delete_key(&components.cameras, id)
     } else {
-        fmt.println("No Camera found for entity:", id)
+        if GAME.DEBUG{
+            fmt.println("No Camera found for entity:", id)
+        }
     }
 }
 

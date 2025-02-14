@@ -13,7 +13,9 @@ main :: proc() {
 
     scene := initScene01()
 
-    orion.debugScene(&scene) //pass scene pointer to debug
+    if orion.GAME.DEBUG{
+        orion.debugScene(&scene) //pass scene pointer to debug
+    } 
 
     orion.gameLoop(&scene) //pass scene pointer to game loop
 }
