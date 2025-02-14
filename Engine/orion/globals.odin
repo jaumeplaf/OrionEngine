@@ -11,18 +11,33 @@ GL_MINOR_VERSION :: 1
 //Game state struct
 Game :: struct {
     //OpenGL version declaration
-    GL_MAJOR_VERSION : i32,
-    GL_MINOR_VERSION : i32,
+    GL_VERSION : [2]i32,
 
     WINDOW : glfw.WindowHandle,
-    MOUSE_POS: m.vec2,
     
     //Event callbacks
     RATIO : f32,
     EXIT : bool,
     RESIZE : bool,
     ACTIVE_SCENE: ^Scene,
+    INPUT: ^Input,
+
+    DEBUG: bool,
+
 }
 
-//Initialize global game state
-GAME := new(Game)
+Input :: struct {
+    LEFT_CLICK : bool,
+    MIDDLE_CLICK : bool,
+    RIGHT_CLICK : bool,
+    SCROLL_UP : bool,
+    SCROLL_DOWN : bool,
+    FORWARD : bool,
+    BACKWARD : bool,
+    LEFT : bool,
+    RIGHT : bool,
+    JUMP : bool,
+    SPRINT : bool,
+    CROUCH : bool,
+    MOUSE_POS: [2]f64,
+}

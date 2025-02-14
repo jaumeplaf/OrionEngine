@@ -7,7 +7,6 @@ import m "core:math/linalg/glsl"
 import "vendor:glfw"
 import "orion"
 
-
 main :: proc() {
     
     orion.initGL(800, 600)

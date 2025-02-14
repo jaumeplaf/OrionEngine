@@ -13,8 +13,8 @@ initGL :: proc(width: i32, height: i32) {
     }
 
     // Window hints (similar to WebGL context attributes)
-    glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION)
-    glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GL_MINOR_VERSION)
+    glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GAME.GL_VERSION[0])
+    glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GAME.GL_VERSION[1])
     glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
     when ODIN_OS == .Darwin {  // Needed for macOS
         glfw.WindowHint(glfw.OPENGL_FORWARD_COMPAT, 1)
