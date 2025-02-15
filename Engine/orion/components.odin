@@ -51,7 +51,8 @@ destroyComponent :: proc(components: ^ComponentManager, id: entity_id) {
 //Add component to handle world position, rotation and scale
 Transform :: struct {
     position : m.vec3,
-    rotation : m.vec3, //Euler vs quat?
+    rotation_axis : m.vec3,
+    rotation_rads: f32,
     scale : m.vec3,
 }
 

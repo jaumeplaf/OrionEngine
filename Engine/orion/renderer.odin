@@ -37,4 +37,50 @@ initGL :: proc(width: i32, height: i32) {
 
     // Load OpenGL functions (automatic in WebGL, explicit here)
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
+
+    initRendering()
+
+}
+
+//Global rendering parameters, runs once at the start
+initRendering :: proc(){
+    gl.Enable(gl.DEPTH_TEST)
+    gl.ClearColor(0.5, 0.5, 0.5, 1.0)  // 50% gray background
+}
+
+//Draw scene, runs every frame
+drawSystem :: proc(scene: ^Scene) {
+    components := scene.components
+    entities := scene.entities
+    meshes := components.meshes
+    
+    // Render
+    gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    
+
+    current_shader: u32 = 0
+
+    for id, is_alive in entities.alive {
+        // Only process entities with both mesh and transform
+        mesh, has_mesh := components.meshes[id]
+        transform, has_transform := components.transforms[id]
+        
+        if has_mesh && has_transform {
+            // Change shader only when needed
+            if mesh.material.shader.program != current_shader {
+                current_shader = mesh.material.shader.program
+                gl.UseProgram(current_shader)
+            }
+
+            // Set transform uniforms here
+            // TODO: Add uniform handling for model matrix
+
+            gl.BindVertexArray(mesh.vao)
+            gl.DrawElements(gl.TRIANGLES, i32(len(mesh.mesh.indices)), gl.UNSIGNED_SHORT, nil)
+        }
+    }
+
+    glfw.SwapBuffers(GAME.WINDOW)
+    glfw.PollEvents()
+
 }

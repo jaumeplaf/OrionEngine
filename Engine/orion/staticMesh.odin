@@ -9,7 +9,7 @@ initStaticMesh :: proc(scene: ^Scene, mesh: Shape, material: Material) -> entity
     id := createEntity(scene)
 
     createMesh(scene, id, mesh, material)
-    createTransform(scene.components, id, m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, m.vec3{1, 1, 1})
+    createTransform(scene.components, id, m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, 0, m.vec3{1, 1, 1})
 
     return id
 }
@@ -61,9 +61,10 @@ meshDestroy :: proc(manager: ^ComponentManager, id: entity_id){
     delete_key(&manager.meshes, id)
 }
 
-setModelMatrix :: proc(mesh: ^StaticMesh, x,y,z,scale: f32){
+calculateModelMatrix :: proc(mesh: ^StaticMesh, position: m.vec3, rotation_axis: m.vec3, rotation_rads: f32, scale: m.vec3){
     identity := m.identity(m.mat4)
-    translate := m.mat4Translate(m.vec3{x,y,z})
-    scale := m.mat4Scale(m.vec3{scale,scale,scale})
+    translate := m.mat4Translate(position)
+    scale := m.mat4Scale(scale)
     mesh.model_matrix = identity * translate * scale
 }
+
