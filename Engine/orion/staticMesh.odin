@@ -9,7 +9,7 @@ initStaticMesh :: proc(scene: ^Scene, mesh: Shape, material: Material) -> entity
     id := createEntity(scene)
 
     createMesh(scene, id, mesh, material)
-    createTransform(scene.components, id, m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, 0, m.vec3{1, 1, 1})
+    setTransform(scene, id, m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, 0, m.vec3{1, 1, 1})
 
     return id
 }

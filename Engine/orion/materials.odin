@@ -5,13 +5,6 @@ import "core:os"
 import m "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
 
-UniformValue :: union {
-    f32,
-    m.vec2,
-    m.vec3,
-    m.vec4,
-    m.mat4,
-}
 
 Material :: struct {
     shader : ^Shader,
@@ -24,9 +17,9 @@ Shader :: struct {
     success : bool,
     vertex_position : u32,
     indices : u32,
-    model_matrix : i32,
-    view_matrix : i32,
-    projection_matrix : i32,
+    model_matrix_index : i32,
+    view_matrix_index : i32,
+    projection_matrix_index : i32,
     color : i32
 }
 
@@ -62,6 +55,8 @@ createShader :: proc(vertex_path: string, fragement_path: string) -> ^Shader {
         fmt.eprintln("Failed to load shaders at path:", vert_path, frag_path)
     }
 
+    initializeUniforms(shader)
+
     return shader
 }
 
@@ -71,4 +66,20 @@ destroyShader :: proc(shader: ^Shader) {
 }
 destroyMaterial :: proc(material: ^Material) {
     free(material)
+}
+
+initializeUniforms :: proc(shader: ^Shader){
+    shader.model_matrix_index = gl.GetUniformLocation(shader.program, "model_matrix")
+    //shader.view_matrix_index = gl.GetUniformLocation(shader.program, "view_matrix")
+    //shader.projection_matrix_index = gl.GetUniformLocation(shader.program, "projection_matrix")
+}
+
+setModelMatrix :: proc(scene: ^Scene, id: entity_id){
+    mesh := scene.components.meshes[id]
+    //TODO: fix thiis, not working
+    gl.UniformMatrix4fv(mesh.material.shader.model_matrix_index, 0, false, &mesh.model_matrix[0,0])
+}
+
+updateUniforms :: proc(program: u32){
+
 }
