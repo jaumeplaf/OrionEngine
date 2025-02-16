@@ -70,14 +70,22 @@ destroyMaterial :: proc(material: ^Material) {
 
 initializeUniforms :: proc(shader: ^Shader){
     shader.model_matrix_index = gl.GetUniformLocation(shader.program, "model_matrix")
+    fmt.println("Initializing model matrix: ")
+    fmt.println(shader.model_matrix_index)
     //shader.view_matrix_index = gl.GetUniformLocation(shader.program, "view_matrix")
     //shader.projection_matrix_index = gl.GetUniformLocation(shader.program, "projection_matrix")
 }
 
 setModelMatrix :: proc(scene: ^Scene, id: entity_id){
     mesh := scene.components.meshes[id]
-    //TODO: fix thiis, not working
-    gl.UniformMatrix4fv(mesh.material.shader.model_matrix_index, 0, false, &mesh.model_matrix[0,0])
+
+    fmt.println("Model matrix: ")
+    fmt.println(mesh.material.shader.model_matrix_index)
+    fmt.println("Matrix points to: ")
+    fmt.println(mesh.model_matrix)
+
+    gl.UseProgram(mesh.material.shader.program)
+    gl.UniformMatrix4fv(mesh.material.shader.model_matrix_index, 1, false, &mesh.model_matrix[0][0])
 }
 
 updateUniforms :: proc(program: u32){

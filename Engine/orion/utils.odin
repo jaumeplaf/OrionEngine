@@ -1,6 +1,7 @@
 package orion
 
 import "core:fmt"
+import m "core:math/linalg/glsl"
 
 getAspectRatio :: proc(width: f32, height: f32) -> f32 {
     return width / height
@@ -42,4 +43,12 @@ debugComponents :: proc(scene: Scene) {
 
 setMousePosition :: proc(x, y: f64){
     GAME.INPUT.MOUSE_POS = [2]f64{x, y}
+}
+
+radsToDegs :: proc(radians: f32) -> f32 {
+    return radians * (180.0 / m.PI);
+}
+
+degsToRads :: proc(degrees: f32) -> f32 {
+    return degrees * (m.PI / 180.0);
 }

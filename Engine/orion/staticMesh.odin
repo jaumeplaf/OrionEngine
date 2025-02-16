@@ -7,9 +7,11 @@ import gl "vendor:OpenGL"
 //Create a new entity with a mesh and a transform component 
 initStaticMesh :: proc(scene: ^Scene, mesh: Shape, material: Material) -> entity_id{
     id := createEntity(scene)
-
+    fmt.println("Creating entity with id:", id)
+    fmt.println("Initializing mesh")
     createMesh(scene, id, mesh, material)
-    setTransform(scene, id, m.vec3{0, 0, 0}, m.vec3{0, 0, 0}, 0, m.vec3{1, 1, 1})
+    fmt.println("Initializing mesh's transform")
+    setTransform(scene, id, m.vec3{0, 0, 0}, m.vec3{0, 1, 0}, 0, m.vec3{1, 1, 1})
 
     return id
 }
@@ -37,6 +39,8 @@ initMeshBuffers :: proc(mesh: ^StaticMesh){
     mesh_object.buffer_vertices = vbo
     mesh_object.buffer_indices = ebo
 
+    mesh_object.model_matrix = m.identity(m.mat4)
+
 
     gl.BindVertexArray(vao)
 
@@ -61,10 +65,23 @@ meshDestroy :: proc(manager: ^ComponentManager, id: entity_id){
     delete_key(&manager.meshes, id)
 }
 
-calculateModelMatrix :: proc(mesh: ^StaticMesh, position: m.vec3, rotation_axis: m.vec3, rotation_rads: f32, scale: m.vec3){
-    identity := m.identity(m.mat4)
+calculateModelMatrix :: proc(mesh: ^StaticMesh, position: m.vec3, rotation_axis: m.vec3, rotation_degs: f32, scale: m.vec3){
     translate := m.mat4Translate(position)
+
+    axis := rotation_axis
+    null := m.vec3{0,0,0}
+    rads := degsToRads(rotation_degs)
+    //Check for invalid rotation axis
+    if axis == null{
+        fmt.println("Error, invalid rotation axis")
+        axis = m.vec3{0,1,0}
+        rads = 0
+
+    }
+    rotation := m.mat4Rotate(axis, rads)
+
     scale := m.mat4Scale(scale)
-    mesh.model_matrix = identity * translate * scale
+
+    mesh.model_matrix =  translate * rotation * scale
 }
 
