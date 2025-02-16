@@ -76,8 +76,8 @@ calculateModelMatrix :: proc(mesh: ^StaticMesh, position: m.vec3, rotation_axis:
         fmt.println("Error, invalid rotation axis")
         axis = m.vec3{0,1,0}
         rads = 0
-
     }
+    fmt.println("ROTATION AXIS: ", axis, ", ROTATION RADS: ", rads)
     rotation := m.mat4Rotate(axis, rads)
 
     scale := m.mat4Scale(scale)

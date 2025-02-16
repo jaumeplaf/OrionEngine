@@ -38,5 +38,9 @@ initScene01 :: proc() -> orion.Scene {
     m_flat02 := orion.Material{sha_flat02, m.vec4{0.39, 0.58, 0.93, 1.0}}
     mesh01 := orion.initStaticMesh(&current_scene, orion.s_triangle, m_flat02)
 
+    orion.setTransform(&current_scene, mesh01, m.vec3{0,0,0}, m.vec3{0,1,0}, 0, m.vec3{0.8,1.2,1})
+    orion.translate(&current_scene, mesh01, m.vec3{0,0,0})
+    orion.rotate(&current_scene, mesh01, m.vec3{0,0,1}, 45)
+
     return current_scene
 }

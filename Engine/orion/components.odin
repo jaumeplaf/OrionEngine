@@ -52,7 +52,7 @@ destroyComponent :: proc(components: ^ComponentManager, id: entity_id) {
 Transform :: struct {
     position : m.vec3,
     rotation_axis : m.vec3,
-    rotation_rads: f32,
+    rotation: f32,
     scale : m.vec3,
 }
 
