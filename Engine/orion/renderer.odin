@@ -38,6 +38,8 @@ initGL :: proc(width: i32, height: i32) {
     // Load OpenGL functions (automatic in WebGL, explicit here)
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
+    GAME.RATIO = getAspectRatio_i32(width, height)
+
     initRendering()
 
 }
