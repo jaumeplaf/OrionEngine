@@ -5,7 +5,8 @@ import m "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
 
 //Create a new entity with a mesh and a transform component 
-initStaticMesh :: proc(scene: ^Scene, mesh: Shape, material: Material) -> entity_id{
+initStaticMesh :: proc(mesh: Shape, material: Material) -> entity_id{
+    scene := GAME.ACTIVE_SCENE
     id := createEntity(scene)
     if GAME.DEBUG {
         fmt.println("Creating entity with id:", id)
@@ -13,17 +14,21 @@ initStaticMesh :: proc(scene: ^Scene, mesh: Shape, material: Material) -> entity
     if GAME.DEBUG {
         fmt.println("Initializing mesh")
     }
-    createMesh(scene, id, mesh, material)
+    createMesh(id, mesh, material)
     if GAME.DEBUG {
         fmt.println("Initializing mesh's transform")
     }
-    createTransform(scene, id, m.vec3{0, 0, 0}, m.vec3{0, 1, 0}, 0, m.vec3{1, 1, 1})
+    createTransform(id, m.vec3{0, 0, 0}, m.vec3{0, 1, 0}, 0, m.vec3{1, 1, 1})
+    fmt.println("Initializing matrices for entity: ", id)
+    updateProjectionMatrix()
+    updateViewMatrix()
 
     return id
 }
 
 //Create a new mesh component on an entity
-createMesh :: proc(scene: ^Scene, id: entity_id, mesh: Shape, material: Material){
+createMesh :: proc(id: entity_id, mesh: Shape, material: Material){
+    scene := GAME.ACTIVE_SCENE
     scene.components.meshes[id] = StaticMesh{
         mesh = mesh,
         material = material,
@@ -63,12 +68,13 @@ initMeshBuffers :: proc(mesh: ^StaticMesh){
     gl.EnableVertexAttribArray(0)
 }
 
-meshDestroy :: proc(manager: ^ComponentManager, id: entity_id){
-    mesh := &manager.meshes[id]
+meshDestroy :: proc(id: entity_id){
+    components := GAME.ACTIVE_SCENE.components
+    mesh := &components.meshes[id]
     gl.DeleteVertexArrays(1, &mesh.vao)
     gl.DeleteBuffers(1, &mesh.buffer_vertices)
     gl.DeleteBuffers(1, &mesh.buffer_indices)
-    delete_key(&manager.meshes, id)
+    delete_key(&components.meshes, id)
 }
 
 calculateModelMatrix :: proc(mesh: ^StaticMesh, position: m.vec3, rotation_axis: m.vec3, rotation_degs: f32, scale: m.vec3){
@@ -88,11 +94,12 @@ calculateModelMatrix :: proc(mesh: ^StaticMesh, position: m.vec3, rotation_axis:
     mesh.model_matrix =  translate * rotation * scale
 }
 
-updateModelMatrix :: proc(scene: ^Scene, id: entity_id){
+updateModelMatrix :: proc(id: entity_id){
+    scene := GAME.ACTIVE_SCENE
     if transform, ok := scene.components.transforms[id]; ok {
         if mesh, ok  := scene.components.meshes[id]; ok {
             calculateModelMatrix(&scene.components.meshes[id], transform.position, transform.rotation_axis, transform.rotation, transform.scale)
-            setModelMatrix(scene, id)
+            setModelMatrix(id)
         }
     }
 }

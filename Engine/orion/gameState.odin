@@ -7,6 +7,8 @@ import "vendor:glfw"
 //Redeclarations
 GL_MAJOR_VERSION :: 4
 GL_MINOR_VERSION :: 1
+MAX_SHADERS :: 4
+MAX_ENTITIES :: 1024
 
 // Initialize global game state
 GAME := create_game(false)
@@ -19,6 +21,7 @@ Game :: struct {
     EXIT : bool,
     RESIZE : bool,
     ACTIVE_SCENE: ^Scene,
+    ACTIVE_CAMERA: u32,
     INPUT: ^Input,
     MODE: ^Mode,
     DEBUG: bool,

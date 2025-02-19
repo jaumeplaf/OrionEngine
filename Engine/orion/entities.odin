@@ -40,7 +40,7 @@ destroyEntity :: proc(scene: ^Scene, id: entity_id) {
     entities := scene.entities
     components := scene.components
 
-    destroyComponent(components, id)
+    destroyComponent(id)
     delete_key(&entities.alive, id)
     append(&entities.freed_ids, id)
 }

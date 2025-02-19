@@ -18,10 +18,11 @@ initComponentManager :: proc() -> ^ComponentManager {
     return manager
 }
 
-destroyComponent :: proc(components: ^ComponentManager, id: entity_id) {
+destroyComponent :: proc(id: entity_id) {
+    components := GAME.ACTIVE_SCENE.components
     // Check and destroy StaticMesh
     if mesh, ok := components.meshes[id]; ok {
-        meshDestroy(components, id)
+        meshDestroy(id)
     } else {
         if GAME.DEBUG{
             fmt.println("No StaticMesh found for entity:", id)
@@ -30,7 +31,7 @@ destroyComponent :: proc(components: ^ComponentManager, id: entity_id) {
     
     // Check and destroy Transform
     if _, ok := components.transforms[id]; ok {
-        transformDestroy(components, id)
+        transformDestroy(id)
     } else {
         if GAME.DEBUG{
             fmt.println("No Transform found for entity:", id)
@@ -77,22 +78,6 @@ Camera :: struct {
     movement: CamMovement,
     near_plane: f32,
     far_plane: f32,
-}
-
-CamMovement :: enum{
-    idle,
-    forward,
-    left,
-    back,
-    right,
-    up,
-    down,
-}
-
-CamStyle :: enum{
-    editor,
-    fps,
-    isometric,    
 }
 
 //Add component to handle static mesh rendering

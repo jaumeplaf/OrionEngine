@@ -3,18 +3,49 @@ package orion
 import "core:fmt"
 import m "core:math/linalg/glsl"
 
-initCamera :: proc(scene: ^Scene, fov: f32, style: CamStyle = .fps, near: f32, far: f32) -> entity_id{
+CamMovement :: enum{
+    idle,
+    forward,
+    left,
+    back,
+    right,
+    up,
+    down,
+}
+
+CamStyle :: enum{
+    editor,
+    fps,
+    isometric,    
+}
+
+initCamera :: proc(fov: f32, style: CamStyle = .fps, near: f32, far: f32) -> entity_id{
+    scene := GAME.ACTIVE_SCENE
     id := createEntity(scene)
-    cam := cameraCreate(scene, id, fov, style, near, far)
-    
+    if GAME.DEBUG {
+        fmt.println("Initializing camera with id:", id) 
+    }
+    cam := cameraCreate(id, fov, style, near, far)
+    if GAME.DEBUG {
+        fmt.println("Initializing projection matrix proc")
+    }
+    fmt.println("Initializing view matrix proc")
     setProjectionMatrix(&cam)
+    if GAME.DEBUG {
+        fmt.println("Initializing view matrix proc")
+    }
+    fmt.println("Initializing view matrix proc")
     setViewMatrix(&cam)
+    if GAME.DEBUG {
+        fmt.println("Finished initializing cam")
+    }
     
     return id
 }
 
 //Styles: .editor, .fps, .isometric
-cameraCreate :: proc(scene: ^Scene, id: entity_id, inFov: f32, cam_style: CamStyle, near: f32, far: f32) -> Camera{
+cameraCreate :: proc(id: entity_id, inFov: f32, cam_style: CamStyle, near: f32, far: f32) -> Camera{
+    scene := GAME.ACTIVE_SCENE
     cam := Camera{
         style = cam_style,
         fov = inFov,
@@ -33,6 +64,8 @@ cameraCreate :: proc(scene: ^Scene, id: entity_id, inFov: f32, cam_style: CamSty
     }
 
     scene.components.cameras[id] = cam
+
+    GAME.ACTIVE_CAMERA = id
 
     return cam
 }
@@ -53,7 +86,7 @@ rotateViewFPS :: proc(cam: ^Camera, deltaYaw: f32, deltaPitch: f32){
 }
 
 getSprint :: proc(cam: ^Camera){
-    if cam.sprint{
+    if GAME.INPUT.SPRINT{
         cam.current_speed = cam.base_speed * cam.sprint_mult
     }
     else{
@@ -71,51 +104,67 @@ getDirectionVectors :: proc(cam: ^Camera){
     cam.up_vec = m.normalize_vec3(cam.up_vec)
 }
 
-setViewMatrix :: proc(cam: ^Camera){
+calculateViewMatrix :: proc(cam: ^Camera){
     cam.view_matrix = m.mat4LookAt(cam.position, cam.target, cam.up_vec)
+    fmt.println("View matrix: ", cam.view_matrix)
+}
+
+calculateProjectionMatrix :: proc(cam: ^Camera){
+    cam.projection_matrix = m.mat4Perspective(cam.fov, GAME.RATIO, cam.near_plane, cam.far_plane)
+    fmt.println("Projection matrix: ", cam.projection_matrix)
+}
+
+setViewMatrix :: proc(cam: ^Camera){
+    calculateViewMatrix(cam)
+    updateViewMatrix()
 }
 
 setProjectionMatrix :: proc(cam: ^Camera){
-    cam.projection_matrix = m.mat4Perspective(cam.fov, GAME.RATIO, cam.near_plane, cam.far_plane)
+    calculateProjectionMatrix(cam)
+    updateProjectionMatrix()
 }
 
 //Update view matrix using CamMovement
 updateCameraPosition :: proc(cam: ^Camera){
     getDirectionVectors(cam)
     getSprint(cam)
+    input := GAME.INPUT
+
+    fmt.println("Updating camera position: ", input)
     
-    if cam.movement == .idle{
-        //Camera is idle
-    }
-    if cam.movement == .forward && cam.movement != .back{
+    if input.FORWARD && !input.BACKWARD {
         cam.position[0] += cam.forward_vec[0] * cam.current_speed
         cam.position[2] += cam.forward_vec[2] * cam.current_speed
         cam.target[0] += cam.forward_vec[0] * cam.current_speed
         cam.target[2] += cam.forward_vec[2] * cam.current_speed
+        fmt.println("Moving forward")
     }
-    if cam.movement == .back{
+    if input.BACKWARD && !input.FORWARD {
         cam.position[0] -= cam.forward_vec[0] * cam.current_speed
         cam.position[2] -= cam.forward_vec[2] * cam.current_speed
         cam.target[0] -= cam.forward_vec[0] * cam.current_speed
         cam.target[2] -= cam.forward_vec[2] * cam.current_speed
+        fmt.println("Moving backward")
     }
-    if cam.movement == .left{
+    if input.LEFT && !input.RIGHT {
         cam.position[0] -= cam.right_vec[0] * cam.current_speed
         cam.position[2] -= cam.right_vec[2] * cam.current_speed
         cam.target[0] -= cam.right_vec[0] * cam.current_speed
         cam.target[2] -= cam.right_vec[2] * cam.current_speed
+        fmt.println("Moving left")
     }
-    if cam.movement == .right && cam.movement != .left{
+    if input.RIGHT && !input.LEFT {
         cam.position[0] += cam.right_vec[0] * cam.current_speed
         cam.position[2] += cam.right_vec[2] * cam.current_speed
         cam.target[0] += cam.right_vec[0] * cam.current_speed
         cam.target[2] += cam.right_vec[2] * cam.current_speed
+        fmt.println("Moving right")
     }
-    if cam.movement == .up && cam.movement != .down{ //can add up/down bounds
+    if input.JUMP && !input.CROUCH { //can add up/down bounds
         cam.position[1] += cam.up_vec[1] * cam.current_speed
         cam.target[1] += cam.up_vec[1] * cam.current_speed
     }
-    if cam.movement == .down{
+    if input.CROUCH && !input.JUMP {
         cam.position[1] -= cam.up_vec[1] * cam.current_speed
         cam.target[1] -= cam.up_vec[1] * cam.current_speed
     }

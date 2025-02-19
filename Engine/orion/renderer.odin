@@ -7,6 +7,10 @@ import gl "vendor:OpenGL"
 initGL :: proc(width: i32, height: i32) {
     // Initialize GLFW (similar to WebGL canvas context creation)
 
+    if GAME.DEBUG {
+        fmt.println("Initializing GLFW")
+    }
+
     if glfw.Init() != true {
         fmt.eprintln("Failed to initialize GLFW")
         return

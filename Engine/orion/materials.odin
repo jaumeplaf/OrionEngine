@@ -2,6 +2,7 @@ package orion
 
 import "core:fmt"
 import "core:os"
+import "base:runtime"
 import m "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
 
@@ -23,6 +24,26 @@ Shader :: struct {
     color : i32
 }
 
+ShaderManager :: struct {
+    shaders : []^Shader,
+    next_id : i32,
+}
+
+initShaderManager :: proc() -> ^ShaderManager {
+    manager := new(ShaderManager)
+    manager.shaders = make([]^Shader, MAX_SHADERS)
+    manager.next_id = 0
+    return manager
+}
+
+//Append shader to the shader manager
+appendShader :: proc(shader: ^Shader){
+    scene := GAME.ACTIVE_SCENE
+    sm := scene.shaders
+    sm.shaders[sm.next_id] = shader
+    sm.next_id += 1
+}
+
 material :: proc(shader: ^Shader, color: m.vec4) -> Material {
     return Material{
         shader = shader,
@@ -33,6 +54,7 @@ material :: proc(shader: ^Shader, color: m.vec4) -> Material {
 //Initialize shader. Loads the vertex and fragment shaders from the shaders directory by name "name.glsl"
 createShader :: proc(vertex_path: string, fragement_path: string) -> ^Shader {
     shader := new(Shader)
+    appendShader(shader)
     shader_dir := os.get_current_directory() // Get executable's directory
 
     when ODIN_OS == .Darwin || ODIN_OS == .Linux  { //macOS and Linux use forward slashes
@@ -69,25 +91,57 @@ destroyMaterial :: proc(material: ^Material) {
 }
 
 initializeUniforms :: proc(shader: ^Shader){
+    fmt.println("Initializing model matrix index")
     shader.model_matrix_index = gl.GetUniformLocation(shader.program, "model_matrix")
-    fmt.println("Initializing model matrix: ")
-    fmt.println(shader.model_matrix_index)
-    //shader.view_matrix_index = gl.GetUniformLocation(shader.program, "view_matrix")
-    //shader.projection_matrix_index = gl.GetUniformLocation(shader.program, "projection_matrix")
+    fmt.println("Initializing view matrix index")
+    shader.view_matrix_index = gl.GetUniformLocation(shader.program, "view_matrix")
+    fmt.println("Initializing projection matrix index")
+    shader.projection_matrix_index = gl.GetUniformLocation(shader.program, "projection_matrix")
+    //updateViewMatrix()
+    //updateProjectionMatrix()
 }
 
-setModelMatrix :: proc(scene: ^Scene, id: entity_id){
+setModelMatrix :: proc(id: entity_id){
+    scene := GAME.ACTIVE_SCENE
     mesh := scene.components.meshes[id]
-
-    fmt.println("Model matrix: ")
-    fmt.println(mesh.material.shader.model_matrix_index)
-    fmt.println("Matrix points to: ")
-    fmt.println(mesh.model_matrix)
-
     gl.UseProgram(mesh.material.shader.program)
     gl.UniformMatrix4fv(mesh.material.shader.model_matrix_index, 1, false, &mesh.model_matrix[0][0])
 }
 
-updateUniforms :: proc(program: u32){
+updateViewMatrix :: proc(){
+    scene := GAME.ACTIVE_SCENE
+    shaders := scene.shaders.shaders
+    cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
+    for shader in shaders {
+        if shader != nil{
+            gl.UseProgram(shader.program)
+            gl.UniformMatrix4fv(shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
+            //fmt.println("View matrix: ", cam.view_matrix)
+        }
+    }
+}
 
+updateProjectionMatrix :: proc(){
+    scene := GAME.ACTIVE_SCENE
+    shaders := scene.shaders.shaders
+    //fmt.println("Shader array: ", shaders)
+    cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
+    //fmt.println("Cameras: ", scene.components.cameras)
+    for shader in shaders {
+        if shader != nil{
+            if GAME.DEBUG {
+                fmt.println("Initializing shader: ", shader.program)
+            }
+            gl.UseProgram(shader.program)
+            if GAME.DEBUG {
+                fmt.println("Setting projection matrix")
+            }
+            gl.UniformMatrix4fv(shader.projection_matrix_index, 1, false, &cam.projection_matrix[0][0])
+            //fmt.println("Projection matrix: ", cam.projection_matrix)
+        }
+
+    }
+    if GAME.DEBUG {
+        fmt.println("Projection matrix set")
+    }
 }

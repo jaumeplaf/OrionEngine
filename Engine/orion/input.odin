@@ -11,6 +11,7 @@ import "vendor:glfw"
 
 keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
     context = runtime.default_context()
+    cam := &GAME.ACTIVE_SCENE.components.cameras[GAME.ACTIVE_CAMERA]
     if action == glfw.PRESS {
         switch key {
         case glfw.KEY_ESCAPE:
