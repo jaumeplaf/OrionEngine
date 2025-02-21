@@ -19,9 +19,9 @@ initStaticMesh :: proc(mesh: Shape, material: Material) -> entity_id{
         fmt.println("Initializing mesh's transform")
     }
     createTransform(id, m.vec3{0, 0, 0}, m.vec3{0, 1, 0}, 0, m.vec3{1, 1, 1})
-    fmt.println("Initializing matrices for entity: ", id)
-    updateProjectionMatrix()
-    updateViewMatrix()
+    
+    cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
+    fmt.println("Active camera: ", cam)
 
     return id
 }

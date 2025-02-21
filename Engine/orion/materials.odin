@@ -114,7 +114,9 @@ updateViewMatrix :: proc(){
     cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
     for shader in shaders {
         if shader != nil{
+            fmt.println("Initializing shader: ", shader.program)
             gl.UseProgram(shader.program)
+            fmt.println("Setting view matrix: ", cam.view_matrix)
             gl.UniformMatrix4fv(shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
             //fmt.println("View matrix: ", cam.view_matrix)
         }
@@ -126,6 +128,7 @@ updateProjectionMatrix :: proc(){
     shaders := scene.shaders.shaders
     //fmt.println("Shader array: ", shaders)
     cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
+    fmt.println("--> Active camera: ", GAME.ACTIVE_CAMERA)
     //fmt.println("Cameras: ", scene.components.cameras)
     for shader in shaders {
         if shader != nil{
@@ -134,10 +137,9 @@ updateProjectionMatrix :: proc(){
             }
             gl.UseProgram(shader.program)
             if GAME.DEBUG {
-                fmt.println("Setting projection matrix")
+                fmt.println("Setting projection matrix: ", cam.projection_matrix)
             }
             gl.UniformMatrix4fv(shader.projection_matrix_index, 1, false, &cam.projection_matrix[0][0])
-            //fmt.println("Projection matrix: ", cam.projection_matrix)
         }
 
     }

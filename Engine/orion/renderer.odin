@@ -39,6 +39,8 @@ initGL :: proc(width: i32, height: i32) {
 	glfw.SetCursorPosCallback(GAME.WINDOW, cursorPositionCallback)
 	glfw.SetFramebufferSizeCallback(GAME.WINDOW, framebufferSizeCallback)
 
+    //glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_CAPTURED)
+
     // Load OpenGL functions (automatic in WebGL, explicit here)
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 

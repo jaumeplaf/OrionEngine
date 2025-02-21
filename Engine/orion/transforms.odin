@@ -45,6 +45,14 @@ rotate :: proc(id: entity_id, axis: m.vec3, degs: f32){
     }
 }
 
+scale :: proc(id: entity_id, scale: m.vec3){
+    scene := GAME.ACTIVE_SCENE
+    if transform, ok := scene.components.transforms[id]; ok {
+        setTransform(id, transform.position, transform.rotation_axis, transform.rotation, scale)
+        updateModelMatrix(id)
+    }
+}
+
 transformDestroy :: proc(id: entity_id) {
     components := GAME.ACTIVE_SCENE.components
     delete_key(&components.transforms, id)

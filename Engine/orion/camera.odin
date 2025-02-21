@@ -19,28 +19,17 @@ CamStyle :: enum{
     isometric,    
 }
 
-initCamera :: proc(fov: f32, style: CamStyle = .fps, near: f32, far: f32) -> entity_id{
+initCamera :: proc(fov: f32, style: CamStyle = .fps, near: f32, far: f32){
     scene := GAME.ACTIVE_SCENE
     id := createEntity(scene)
     if GAME.DEBUG {
         fmt.println("Initializing camera with id:", id) 
     }
     cam := cameraCreate(id, fov, style, near, far)
-    if GAME.DEBUG {
-        fmt.println("Initializing projection matrix proc")
-    }
-    fmt.println("Initializing view matrix proc")
-    setProjectionMatrix(&cam)
-    if GAME.DEBUG {
-        fmt.println("Initializing view matrix proc")
-    }
-    fmt.println("Initializing view matrix proc")
-    setViewMatrix(&cam)
-    if GAME.DEBUG {
-        fmt.println("Finished initializing cam")
-    }
     
-    return id
+    fmt.println("Camera initialized: ", cam)
+    
+    return
 }
 
 //Styles: .editor, .fps, .isometric
@@ -49,8 +38,8 @@ cameraCreate :: proc(id: entity_id, inFov: f32, cam_style: CamStyle, near: f32, 
     cam := Camera{
         style = cam_style,
         fov = inFov,
-        position = m.vec3{0, 0, 0},
-        target = m.vec3{0, 0, -10},
+        position = m.vec3{0, 0, 10},
+        target = m.vec3{0, 0, 0},
         yaw = m.PI,
         pitch = 0,
         max_pitch = m.PI / 2 - 0.01,
@@ -61,10 +50,10 @@ cameraCreate :: proc(id: entity_id, inFov: f32, cam_style: CamStyle, near: f32, 
         movement = .idle,
         near_plane = near,
         far_plane = far,
+        view_matrix = m.mat4LookAt(m.vec3{0, 0, 0}, m.vec3{0, 0, -10}, m.vec3{0,1,0}),
+        projection_matrix = m.mat4Perspective(inFov, GAME.RATIO, near, far),
     }
-
     scene.components.cameras[id] = cam
-
     GAME.ACTIVE_CAMERA = id
 
     return cam
@@ -106,12 +95,10 @@ getDirectionVectors :: proc(cam: ^Camera){
 
 calculateViewMatrix :: proc(cam: ^Camera){
     cam.view_matrix = m.mat4LookAt(cam.position, cam.target, cam.up_vec)
-    fmt.println("View matrix: ", cam.view_matrix)
 }
 
 calculateProjectionMatrix :: proc(cam: ^Camera){
     cam.projection_matrix = m.mat4Perspective(cam.fov, GAME.RATIO, cam.near_plane, cam.far_plane)
-    fmt.println("Projection matrix: ", cam.projection_matrix)
 }
 
 setViewMatrix :: proc(cam: ^Camera){

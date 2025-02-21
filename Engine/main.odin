@@ -21,24 +21,21 @@ main :: proc() {
 }
 
 initScene01 :: proc() -> ^orion.Scene {
+    //Init scene
     current_scene := orion.initScene("Scene01")
-    
-    //Declare entities, must look at memory management for this
-    ent0 := orion.createEntity(current_scene)
-    ent1 := orion.createEntity(current_scene)
-    ent2 := orion.createEntity(current_scene)
-    orion.destroyEntity(current_scene, ent2)
-    ent3 := orion.createEntity(current_scene)
-    ent4 := orion.createEntity(current_scene)
-    orion.destroyEntity(current_scene, ent4)
-    ent5 := orion.createEntity(current_scene)
-    
+    //Init shaders
     sha_flat02 := orion.createShader("vertex.glsl", "fragment.glsl")
+    //Init materials
     m_flat02 := orion.Material{sha_flat02, m.vec4{0.39, 0.58, 0.93, 1.0}}
-    mesh01 := orion.initStaticMesh(orion.s_triangle, m_flat02)
+    //Init meshes
+    triangle01 := orion.initStaticMesh(orion.s_triangle, m_flat02)
+    orion.translate(triangle01, m.vec3{0,0,0})
+    orion.rotate(triangle01, m.vec3{0,0,1}, 45)
+    orion.scale(triangle01, m.vec3{1,1,10})
+    cube01 := orion.initStaticMesh(orion.s_cube, m_flat02)
+    orion.translate(cube01, m.vec3{25,0,25})
+    orion.scale(cube01, m.vec3{2,2,10})
 
-    orion.translate(mesh01, m.vec3{0,0,0})
-    orion.rotate(mesh01, m.vec3{0,0,1}, 45)
 
     return current_scene
 }
