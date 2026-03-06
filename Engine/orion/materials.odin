@@ -38,13 +38,8 @@ initShaderManager :: proc() -> ^ShaderManager {
 
 //Append shader to the shader manager
 appendShader :: proc(shader: ^Shader){
-    fmt.println("Init shader append")
     scene := GAME.ACTIVE_SCENE
-    fmt.println("Scene: ", scene)
     sm := scene.shaders
-    fmt.println("Shaders: ", sm)
-    fmt.println("NextID: ", sm.next_id)
-    fmt.println("CurrNextIDvalue: ", scene)
     sm.shaders[sm.next_id] = shader
     sm.next_id += 1
 }
