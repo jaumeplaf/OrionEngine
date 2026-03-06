@@ -54,7 +54,7 @@ cameraCreate :: proc(id: entity_id, inFov: f32, cam_style: CamStyle, near: f32, 
     }
 
     cam.view_matrix = m.mat4LookAt(cam.position, cam.target, cam.up_vec)
-    cam.projection_matrix = m.mat4Perspective(inFov, GAME.RATIO, near, far)
+    cam.projection_matrix = m.mat4Perspective(degsToRads(inFov), GAME.RATIO, near, far)
 
     scene.components.cameras[id] = cam
     GAME.ACTIVE_CAMERA = id
@@ -101,7 +101,14 @@ calculateViewMatrix :: proc(cam: ^Camera){
 }
 
 calculateProjectionMatrix :: proc(cam: ^Camera){
-    cam.projection_matrix = m.mat4Perspective(cam.fov, GAME.RATIO, cam.near_plane, cam.far_plane)
+    projection := m.mat4Perspective(degsToRads(cam.fov), GAME.RATIO, cam.near_plane, cam.far_plane)
+
+    // Keep this for your current clip-space convention
+    //projection[1][1] *= -1
+    // Fix horizontal mirroring: make +X appear on screen right
+    //projection[0][0] *= -1
+
+    cam.projection_matrix = projection
 }
 
 setViewMatrix :: proc(cam: ^Camera){

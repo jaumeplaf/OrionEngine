@@ -5,6 +5,8 @@ import "vendor:glfw"
 import gl "vendor:OpenGL"
 
 initGL :: proc(width: i32, height: i32) {
+    initGameState()
+
     // Initialize GLFW (similar to WebGL canvas context creation)
 
     if GAME.DEBUG {
@@ -45,6 +47,7 @@ initGL :: proc(width: i32, height: i32) {
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
     GAME.RATIO = getAspectRatio_i32(width, height)
+    gl.Viewport(0, 0, width, height)
 
     initRendering()
 
@@ -67,21 +70,29 @@ drawSystem :: proc(scene: ^Scene) {
     
 
     current_shader: u32 = 0
+    cam, has_cam := components.cameras[GAME.ACTIVE_CAMERA]
 
     for id, is_alive in entities.alive {
-        // Only process entities with both mesh and transform
+        if !is_alive {
+            continue
+        }
+
         mesh, has_mesh := components.meshes[id]
         transform, has_transform := components.transforms[id]
         
         if has_mesh && has_transform {
-            // Change shader only when needed
             if mesh.material.shader.program != current_shader {
                 current_shader = mesh.material.shader.program
                 gl.UseProgram(current_shader)
+
+                if has_cam {
+                    gl.UniformMatrix4fv(mesh.material.shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
+                    gl.UniformMatrix4fv(mesh.material.shader.projection_matrix_index, 1, false, &cam.projection_matrix[0][0])
+                }
             }
 
-            // Set transform uniforms here
-            // TODO: Add uniform handling for model matrix
+            // Always set model matrix before draw
+            gl.UniformMatrix4fv(mesh.material.shader.model_matrix_index, 1, false, &mesh.model_matrix[0][0])
 
             gl.BindVertexArray(mesh.vao)
             gl.DrawElements(gl.TRIANGLES, i32(len(mesh.mesh.indices)), gl.UNSIGNED_SHORT, nil)

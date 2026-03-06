@@ -6,6 +6,7 @@ import "core:time"
 import m "core:math/linalg/glsl"
 import "base:runtime"
 import "vendor:glfw"
+import gl "vendor:OpenGL"
 
 //Event callbacks
 
@@ -164,6 +165,7 @@ scrollCallback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
 framebufferSizeCallback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	context = runtime.default_context()
 	GAME.RATIO = getAspectRatio_i32(width, height)
+    gl.Viewport(0, 0, width, height)
 	GAME.RESIZE = true
 	if GAME.DEBUG {
         fmt.println("Framebuffer resized: ", "w-", width, "h-", height)

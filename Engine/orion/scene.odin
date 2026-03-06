@@ -42,9 +42,9 @@ initScene :: proc(name: string) -> ^Scene {
     //IT LOOKS LIKE VIEW AND PROJECTION MATRICES ARE INITIALIZED CORRECTLY, BUT THEY ARE LOST OUTSIDE OF THE FUNCTION
     initCamera(10, .fps, 0.01, 10000)
     //HERE THE MATRICES ARE LOST
-    cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
-    setProjectionMatrix(&cam)
-    setViewMatrix(&cam)
+    cam := &scene.components.cameras[GAME.ACTIVE_CAMERA]
+    setProjectionMatrix(cam)
+    setViewMatrix(cam)
     if GAME.DEBUG {
         fmt.println("---DEBUG CAM:", scene.components.cameras[GAME.ACTIVE_CAMERA])
     }

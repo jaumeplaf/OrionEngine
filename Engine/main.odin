@@ -35,28 +35,13 @@ initScene01 :: proc() -> ^orion.Scene {
     //Init meshes
     triangle01 := orion.initStaticMesh(orion.s_triangle, m_flat01)
     orion.translate(triangle01, m.vec3{0,0,0})
-    orion.rotate(triangle01, m.vec3{0,0,1}, 0)
-    orion.scale(triangle01, m.vec3{1,1,1})
-    cube01 := orion.initStaticMesh(orion.s_cube, m_flat01)
-    orion.translate(cube01, m.vec3{25,0,25})
-    orion.scale(cube01, m.vec3{2,2,2})
-    cube02 := orion.initStaticMesh(orion.s_cube, m_flat01)
-    orion.translate(cube02, m.vec3{-25,0,-25})
-    orion.scale(cube02, m.vec3{2,2,2})
-    cube03 := orion.initStaticMesh(orion.s_cube, m_flat01)
-    orion.translate(cube03, m.vec3{25,12.5,25})
-    orion.scale(cube03, m.vec3{2,2,2})
-    cube04 := orion.initStaticMesh(orion.s_cube, m_flat01)
-    orion.translate(cube04, m.vec3{25,-12.5,25})
-    cube05 := orion.initStaticMesh(orion.s_cube, m_flat01)
-    orion.translate(cube05, m.vec3{-25,12.5,-25})
-    orion.scale(cube05, m.vec3{2,2,2})
-    cube06 := orion.initStaticMesh(orion.s_cube, m_flat01)
-    orion.translate(cube06, m.vec3{-25,-12.5,-25})
-    orion.scale(cube06, m.vec3{2,2,2})
+    //orion.rotate(triangle01, m.vec3{0,0,1}, 0)
+    orion.scaleUniform(triangle01, 1)
+    /*
     cube07 := orion.initStaticMesh(orion.s_cube, m_flat01)
     orion.translate(cube07, m.vec3{0,0,0})
-    orion.scale(cube07, m.vec3{1,1,1})
-
+    orion.scale(cube07, m.vec3{5,5,5})
+    orion.rotate(cube07, m.vec3{0,1,0}, 45)
+*/
     return current_scene
 }

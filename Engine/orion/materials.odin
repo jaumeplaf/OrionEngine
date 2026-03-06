@@ -108,8 +108,16 @@ initializeUniforms :: proc(shader: ^Shader){
         fmt.println("Initializing projection matrix index")
     }
     shader.projection_matrix_index = gl.GetUniformLocation(shader.program, "projection_matrix")
-    //updateViewMatrix()
-    //updateProjectionMatrix()
+
+    scene := GAME.ACTIVE_SCENE
+    if scene == nil {
+        return
+    }
+    if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok {
+        gl.UseProgram(shader.program)
+        gl.UniformMatrix4fv(shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
+        gl.UniformMatrix4fv(shader.projection_matrix_index, 1, false, &cam.projection_matrix[0][0])
+    }
 }
 
 setModelMatrix :: proc(id: entity_id){

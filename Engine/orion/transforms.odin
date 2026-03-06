@@ -53,6 +53,15 @@ scale :: proc(id: entity_id, scale: m.vec3){
     }
 }
 
+scaleUniform :: proc(id: entity_id, scale: f32){
+    scene := GAME.ACTIVE_SCENE
+    if transform, ok := scene.components.transforms[id]; ok {
+        new_scale := m.vec3{scale, scale, scale}
+        setTransform(id, transform.position, transform.rotation_axis, transform.rotation, new_scale)
+        updateModelMatrix(id)
+    }
+}
+
 transformDestroy :: proc(id: entity_id) {
     components := GAME.ACTIVE_SCENE.components
     delete_key(&components.transforms, id)

@@ -11,8 +11,8 @@ MAX_SHADERS :: 4
 MAX_ENTITIES :: 1024
 DEBUG_MODE :: false
 
-// Initialize global game state
-GAME := create_game(DEBUG_MODE)
+// Global game state (initialized at runtime)
+GAME: ^Game
 
 //Manage game state globally
 Game :: struct {
@@ -65,5 +65,12 @@ create_game :: proc(debug: bool) -> ^Game {
         DEBUG = debug,
     }
     return game
+}
+
+initGameState :: proc(debug: bool = DEBUG_MODE) {
+    if GAME != nil {
+        return
+    }
+    GAME = create_game(debug)
 }
 
