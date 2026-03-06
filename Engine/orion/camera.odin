@@ -25,20 +25,21 @@ initCamera :: proc(fov: f32, style: CamStyle = .fps, near: f32, far: f32){
     if GAME.DEBUG {
         fmt.println("Initializing camera with id:", id) 
     }
-    cam := cameraCreate(id, fov, style, near, far)
-    
-    fmt.println("Camera initialized: ", cam)
-    
+    cam := cameraCreate(id, fov, style, near, far, m.vec3{0,0,10})
+    if GAME.DEBUG {
+        fmt.println("Camera initialized: ", cam)
+    }
+
     return
 }
 
 //Styles: .editor, .fps, .isometric
-cameraCreate :: proc(id: entity_id, inFov: f32, cam_style: CamStyle, near: f32, far: f32) -> Camera{
+cameraCreate :: proc(id: entity_id, inFov: f32, cam_style: CamStyle, near: f32, far: f32, init_pos: m.vec3) -> Camera{
     scene := GAME.ACTIVE_SCENE
     cam := Camera{
         style = cam_style,
         fov = inFov,
-        position = m.vec3{0, 0, 10},
+        position = init_pos,
         target = m.vec3{0, 0, 0},
         yaw = m.PI,
         pitch = 0,
@@ -49,10 +50,12 @@ cameraCreate :: proc(id: entity_id, inFov: f32, cam_style: CamStyle, near: f32, 
         sprint = false,
         movement = .idle,
         near_plane = near,
-        far_plane = far,
-        view_matrix = m.mat4LookAt(m.vec3{0, 0, 0}, m.vec3{0, 0, -10}, m.vec3{0,1,0}),
-        projection_matrix = m.mat4Perspective(inFov, GAME.RATIO, near, far),
+        far_plane = far
     }
+
+    cam.view_matrix = m.mat4LookAt(cam.position, cam.target, cam.up_vec)
+    cam.projection_matrix = m.mat4Perspective(inFov, GAME.RATIO, near, far)
+
     scene.components.cameras[id] = cam
     GAME.ACTIVE_CAMERA = id
 
@@ -117,35 +120,45 @@ updateCameraPosition :: proc(cam: ^Camera){
     getSprint(cam)
     input := GAME.INPUT
 
-    fmt.println("Updating camera position: ", input)
+    if GAME.DEBUG {
+        fmt.println("Updating camera position: ", input)
+    }
     
     if input.FORWARD && !input.BACKWARD {
         cam.position[0] += cam.forward_vec[0] * cam.current_speed
         cam.position[2] += cam.forward_vec[2] * cam.current_speed
         cam.target[0] += cam.forward_vec[0] * cam.current_speed
         cam.target[2] += cam.forward_vec[2] * cam.current_speed
-        fmt.println("Moving forward")
+        if GAME.DEBUG {
+            fmt.println("Moving forward")
+        }
     }
     if input.BACKWARD && !input.FORWARD {
         cam.position[0] -= cam.forward_vec[0] * cam.current_speed
         cam.position[2] -= cam.forward_vec[2] * cam.current_speed
         cam.target[0] -= cam.forward_vec[0] * cam.current_speed
         cam.target[2] -= cam.forward_vec[2] * cam.current_speed
-        fmt.println("Moving backward")
+        if GAME.DEBUG {
+            fmt.println("Moving backward")
+        }
     }
     if input.LEFT && !input.RIGHT {
         cam.position[0] -= cam.right_vec[0] * cam.current_speed
         cam.position[2] -= cam.right_vec[2] * cam.current_speed
         cam.target[0] -= cam.right_vec[0] * cam.current_speed
         cam.target[2] -= cam.right_vec[2] * cam.current_speed
-        fmt.println("Moving left")
+        if GAME.DEBUG {
+            fmt.println("Moving left")
+        }
     }
     if input.RIGHT && !input.LEFT {
         cam.position[0] += cam.right_vec[0] * cam.current_speed
         cam.position[2] += cam.right_vec[2] * cam.current_speed
         cam.target[0] += cam.right_vec[0] * cam.current_speed
         cam.target[2] += cam.right_vec[2] * cam.current_speed
-        fmt.println("Moving right")
+        if GAME.DEBUG {
+            fmt.println("Moving right")
+        }
     }
     if input.JUMP && !input.CROUCH { //can add up/down bounds
         cam.position[1] += cam.up_vec[1] * cam.current_speed

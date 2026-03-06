@@ -5,7 +5,7 @@ import m "core:math/linalg/glsl"
 import gl "vendor:OpenGL"
 
 //Create a new entity with a mesh and a transform component 
-initStaticMesh :: proc(mesh: Shape, material: Material) -> entity_id{
+initStaticMesh :: proc(mesh: Shape, material: ^Material) -> entity_id{
     scene := GAME.ACTIVE_SCENE
     id := createEntity(scene)
     if GAME.DEBUG {
@@ -21,17 +21,20 @@ initStaticMesh :: proc(mesh: Shape, material: Material) -> entity_id{
     createTransform(id, m.vec3{0, 0, 0}, m.vec3{0, 1, 0}, 0, m.vec3{1, 1, 1})
     
     cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
-    fmt.println("Active camera: ", cam)
+
+    if GAME.DEBUG {
+        fmt.println("Active camera: ", cam)
+    }
 
     return id
 }
 
 //Create a new mesh component on an entity
-createMesh :: proc(id: entity_id, mesh: Shape, material: Material){
+createMesh :: proc(id: entity_id, mesh: Shape, material: ^Material){
     scene := GAME.ACTIVE_SCENE
     scene.components.meshes[id] = StaticMesh{
         mesh = mesh,
-        material = material,
+        material = material^,
     }
 
     initMeshBuffers(&scene.components.meshes[id])

@@ -138,7 +138,7 @@ cursorPositionCallback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) 
     context = runtime.default_context()
 	GAME.INPUT.MOUSE_POS = [2]f64{xpos, ypos}
 	if GAME.DEBUG {
-        fmt.println("Mouse moved: ", "x-", xpos, "y-", ypos)
+        //fmt.println("Mouse moved: ", "x-", xpos, "y-", ypos)
     }
 }
 

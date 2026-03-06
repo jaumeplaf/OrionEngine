@@ -38,17 +38,22 @@ initShaderManager :: proc() -> ^ShaderManager {
 
 //Append shader to the shader manager
 appendShader :: proc(shader: ^Shader){
+    fmt.println("Init shader append")
     scene := GAME.ACTIVE_SCENE
+    fmt.println("Scene: ", scene)
     sm := scene.shaders
+    fmt.println("Shaders: ", sm)
+    fmt.println("NextID: ", sm.next_id)
+    fmt.println("CurrNextIDvalue: ", scene)
     sm.shaders[sm.next_id] = shader
     sm.next_id += 1
 }
 
-material :: proc(shader: ^Shader, color: m.vec4) -> Material {
-    return Material{
-        shader = shader,
-        base_color = color,
-    }
+createMaterial :: proc(shader: ^Shader, color: m.vec4) -> ^Material {
+    mat := new(Material)
+    mat.shader = shader
+    mat.base_color = color
+    return mat
 }
 
 //Initialize shader. Loads the vertex and fragment shaders from the shaders directory by name "name.glsl"
@@ -91,11 +96,17 @@ destroyMaterial :: proc(material: ^Material) {
 }
 
 initializeUniforms :: proc(shader: ^Shader){
-    fmt.println("Initializing model matrix index")
+    if GAME.DEBUG {
+        fmt.println("Initializing model matrix index")
+    }
     shader.model_matrix_index = gl.GetUniformLocation(shader.program, "model_matrix")
-    fmt.println("Initializing view matrix index")
+    if GAME.DEBUG {
+        fmt.println("Initializing view matrix index")
+    } 
     shader.view_matrix_index = gl.GetUniformLocation(shader.program, "view_matrix")
-    fmt.println("Initializing projection matrix index")
+    if GAME.DEBUG {
+        fmt.println("Initializing projection matrix index")
+    }
     shader.projection_matrix_index = gl.GetUniformLocation(shader.program, "projection_matrix")
     //updateViewMatrix()
     //updateProjectionMatrix()
@@ -111,14 +122,21 @@ setModelMatrix :: proc(id: entity_id){
 updateViewMatrix :: proc(){
     scene := GAME.ACTIVE_SCENE
     shaders := scene.shaders.shaders
+    
+    if GAME.DEBUG {
+                fmt.println("Shaders: ", shaders)
+            }
     cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
     for shader in shaders {
         if shader != nil{
-            fmt.println("Initializing shader: ", shader.program)
+            if GAME.DEBUG {
+                fmt.println("Initializing shader: ", shader.program)
+            }
             gl.UseProgram(shader.program)
-            fmt.println("Setting view matrix: ", cam.view_matrix)
+            if GAME.DEBUG {
+                fmt.println("Setting view matrix: ", cam.view_matrix)
+            }
             gl.UniformMatrix4fv(shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
-            //fmt.println("View matrix: ", cam.view_matrix)
         }
     }
 }
@@ -126,10 +144,13 @@ updateViewMatrix :: proc(){
 updateProjectionMatrix :: proc(){
     scene := GAME.ACTIVE_SCENE
     shaders := scene.shaders.shaders
-    //fmt.println("Shader array: ", shaders)
+    if GAME.DEBUG {
+        fmt.println("Shader array: ", shaders)
+    }
     cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
-    fmt.println("--> Active camera: ", GAME.ACTIVE_CAMERA)
-    //fmt.println("Cameras: ", scene.components.cameras)
+    if GAME.DEBUG {
+        fmt.println("--> Active camera: ", GAME.ACTIVE_CAMERA)
+    }
     for shader in shaders {
         if shader != nil{
             if GAME.DEBUG {

@@ -9,9 +9,10 @@ GL_MAJOR_VERSION :: 4
 GL_MINOR_VERSION :: 1
 MAX_SHADERS :: 4
 MAX_ENTITIES :: 1024
+DEBUG_MODE :: false
 
 // Initialize global game state
-GAME := create_game(true)
+GAME := create_game(DEBUG_MODE)
 
 //Manage game state globally
 Game :: struct {
