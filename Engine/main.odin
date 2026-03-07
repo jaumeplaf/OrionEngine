@@ -31,30 +31,30 @@ initScene01 :: proc() -> ^orion.Scene {
     //Init shaders
     sha_vc := orion.createShader("vertex.glsl", "fragment.glsl")
     sha_flat := orion.createShader("vertex.glsl", "fragment_flat.glsl")
+    sha_floor := orion.createShader("vertex.glsl", "fragment_floor.glsl")
     //Init materials
     m_vc01 := orion.createMaterial(sha_vc, m.vec4{1.0, 1.0, 1.0, 1.0})
-    m_flat_gray := orion.createMaterial(sha_flat, m.vec4{0.25, 0.25, 0.25, 1.0})
+    m_floor_gray := orion.createMaterial(sha_floor, m.vec4{0.8, 0.8, 0.8, 1.0})
     m_flat_red := orion.createMaterial(sha_flat, m.vec4{1.0, 0.0, 0.0, 1.0})
     m_flat_green := orion.createMaterial(sha_flat, m.vec4{0.0, 1.0, 0.0, 1.0})
     m_flat_blue := orion.createMaterial(sha_flat, m.vec4{0.0, 0.0, 1.0, 1.0})
     
     //Init axis lines
     x_axis_line := orion.initLineMesh(orion.s_line, m_flat_red)
-    orion.translate(x_axis_line, m.vec3{0,0.025,0})
-    orion.scale(x_axis_line, m.vec3{1000, 1, 1})
+    orion.translate(x_axis_line, m.vec3{0,0.1,0})
+    orion.scaleUniform(x_axis_line, 1000)
 
     y_axis_line := orion.initLineMesh(orion.s_line, m_flat_green)
-    orion.translate(y_axis_line, m.vec3{0,0,0})
-    orion.scale(y_axis_line, m.vec3{1000, 1, 1})
+    orion.scaleUniform(y_axis_line, 1000)
     orion.rotate(y_axis_line, m.vec3{0,0,1}, 90)
 
     z_axis_line := orion.initLineMesh(orion.s_line, m_flat_blue)
-    orion.translate(z_axis_line, m.vec3{0,0.025,0})
-    orion.scale(z_axis_line, m.vec3{1000, 1, 1})
+    orion.translate(z_axis_line, m.vec3{0,0.1,0})
+    orion.scaleUniform(z_axis_line, 1000)
     orion.rotate(z_axis_line, m.vec3{0,1,0}, 90)
 
     //Init floor plane
-    floor_plane := orion.initStaticMesh(orion.s_plane, m_flat_gray)
+    floor_plane := orion.initStaticMesh(orion.s_plane, m_floor_gray)
     orion.translate(floor_plane, m.vec3{0,0,0})
     orion.scaleUniform(floor_plane, 1000)
 

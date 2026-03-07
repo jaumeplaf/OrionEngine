@@ -117,6 +117,12 @@ drawSystem :: proc(scene: ^Scene) {
             }
 
             gl.BindVertexArray(mesh.vao)
+            if mesh.draw_mode == gl.LINES {
+                gl.LineWidth(AXIS_WIDTH)
+            } 
+            else {
+            gl.LineWidth(1.0)
+            }
             gl.DrawElements(mesh.draw_mode, i32(len(mesh.mesh.indices)), gl.UNSIGNED_SHORT, nil)
         }
     }

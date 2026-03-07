@@ -5,9 +5,6 @@ in vec4 vertexColor;
 out vec4 FragColor;
 uniform vec4 color;
 
-//location????
-//llok up learnopengl
-
 void main() {
     FragColor = vertexColor * color;
 }
