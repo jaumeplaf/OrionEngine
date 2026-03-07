@@ -29,12 +29,26 @@ initStaticMesh :: proc(mesh: Shape, material: ^Material) -> entity_id{
     return id
 }
 
+initLineMesh :: proc(mesh: Shape, material: ^Material) -> entity_id{
+    scene := GAME.ACTIVE_SCENE
+    id := createEntity(scene)
+    if GAME.DEBUG {
+        fmt.println("Creating line entity with id:", id)
+    }
+
+    createMesh(id, mesh, material, gl.LINES)
+    createTransform(id, m.vec3{0, 0, 0}, m.vec3{0, 1, 0}, 0, m.vec3{1, 1, 1})
+
+    return id
+}
+
 //Create a new mesh component on an entity
-createMesh :: proc(id: entity_id, mesh: Shape, material: ^Material){
+createMesh :: proc(id: entity_id, mesh: Shape, material: ^Material, draw_mode: u32 = gl.TRIANGLES){
     scene := GAME.ACTIVE_SCENE
     scene.components.meshes[id] = StaticMesh{
         mesh = mesh,
         material = material^,
+        draw_mode = draw_mode,
     }
 
     initMeshBuffers(&scene.components.meshes[id])

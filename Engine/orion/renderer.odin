@@ -40,8 +40,7 @@ initGL :: proc(width: i32, height: i32) {
     glfw.SetScrollCallback(GAME.WINDOW, scrollCallback)
 	glfw.SetCursorPosCallback(GAME.WINDOW, cursorPositionCallback)
 	glfw.SetFramebufferSizeCallback(GAME.WINDOW, framebufferSizeCallback)
-
-    //glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_CAPTURED)
+    glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_NORMAL)
 
     // Load OpenGL functions (automatic in WebGL, explicit here)
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
@@ -81,25 +80,37 @@ drawSystem :: proc(scene: ^Scene) {
         transform, has_transform := components.transforms[id]
         
         if has_mesh && has_transform {
+            if !mesh.material.shader.success || mesh.material.shader.program == 0 {
+                continue
+            }
+
             if mesh.material.shader.program != current_shader {
                 current_shader = mesh.material.shader.program
                 gl.UseProgram(current_shader)
 
                 if has_cam {
-                    gl.UniformMatrix4fv(mesh.material.shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
-                    gl.UniformMatrix4fv(mesh.material.shader.projection_matrix_index, 1, false, &cam.projection_matrix[0][0])
+                    if mesh.material.shader.view_matrix_index >= 0 {
+                        gl.UniformMatrix4fv(mesh.material.shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
+                    }
+                    if mesh.material.shader.projection_matrix_index >= 0 {
+                        gl.UniformMatrix4fv(mesh.material.shader.projection_matrix_index, 1, false, &cam.projection_matrix[0][0])
+                    }
                 }
             }
 
             // Always set model matrix before draw
-            gl.UniformMatrix4fv(mesh.material.shader.model_matrix_index, 1, false, &mesh.model_matrix[0][0])
+            if mesh.material.shader.model_matrix_index >= 0 {
+                gl.UniformMatrix4fv(mesh.material.shader.model_matrix_index, 1, false, &mesh.model_matrix[0][0])
+            }
+            if mesh.material.shader.color >= 0 {
+                gl.Uniform4fv(mesh.material.shader.color, 1, &mesh.material.base_color[0])
+            }
 
             gl.BindVertexArray(mesh.vao)
-            gl.DrawElements(gl.TRIANGLES, i32(len(mesh.mesh.indices)), gl.UNSIGNED_SHORT, nil)
+            gl.DrawElements(mesh.draw_mode, i32(len(mesh.mesh.indices)), gl.UNSIGNED_SHORT, nil)
         }
     }
 
     glfw.SwapBuffers(GAME.WINDOW)
-    glfw.PollEvents()
 
 }

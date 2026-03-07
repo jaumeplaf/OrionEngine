@@ -1,7 +1,9 @@
 package orion
 
 import "core:fmt"
+import m "core:math/linalg/glsl"
 import "core:encoding/json"
+
 
 Scene :: struct {
     name : string,
@@ -11,7 +13,7 @@ Scene :: struct {
     shaders : ^ShaderManager,
 }
 
-initScene :: proc(name: string) -> ^Scene {
+initScene :: proc(name: string, fov: f32) -> ^Scene {
     if GAME.DEBUG {
         fmt.println("Initializing scene")
     }
@@ -39,12 +41,17 @@ initScene :: proc(name: string) -> ^Scene {
     if GAME.DEBUG {
         fmt.println("Initializing camera")
     }
-    //IT LOOKS LIKE VIEW AND PROJECTION MATRICES ARE INITIALIZED CORRECTLY, BUT THEY ARE LOST OUTSIDE OF THE FUNCTION
-    initCamera(10, .fps, 0.01, 10000)
-    //HERE THE MATRICES ARE LOST
+    fps_id := initCamera(fov, .fps, 0.01, 10000, m.vec3{5,1.7,10})
+    editor_id := initCamera(fov, .editor, 0.01, 10000, m.vec3{5,1.7,10})
+
+    GAME.FPS_CAMERA = fps_id
+    GAME.EDITOR_CAMERA = editor_id
+    GAME.ACTIVE_CAMERA = fps_id
+
     cam := &scene.components.cameras[GAME.ACTIVE_CAMERA]
     setProjectionMatrix(cam)
     setViewMatrix(cam)
+    applyCursorModeForCamera(cam.style)
     if GAME.DEBUG {
         fmt.println("---DEBUG CAM:", scene.components.cameras[GAME.ACTIVE_CAMERA])
     }

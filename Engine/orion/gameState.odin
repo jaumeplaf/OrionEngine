@@ -11,6 +11,17 @@ MAX_SHADERS :: 4
 MAX_ENTITIES :: 1024
 DEBUG_MODE :: false
 
+//Controls
+SENSITIVITY :: 1.0
+MOVE_SPEED :: 0.3
+SPRINT_SPEED :: 2.0
+CROUCH_SPEED_MULT :: 0.5
+JUMP_VELOCITY :: 0.18
+GRAVITY_ACCEL :: 0.012
+EDITOR_SPEED_MIN :: 0.25
+EDITOR_SPEED_MAX :: 4.0
+EDITOR_SCROLL_STEP :: 0.1
+
 // Global game state (initialized at runtime)
 GAME: ^Game
 
@@ -23,6 +34,8 @@ Game :: struct {
     RESIZE : bool,
     ACTIVE_SCENE: ^Scene,
     ACTIVE_CAMERA: u32,
+    FPS_CAMERA: u32,
+    EDITOR_CAMERA: u32,
     INPUT: ^Input,
     MODE: ^Mode,
     DEBUG: bool,
@@ -34,6 +47,7 @@ Input :: struct {
     RIGHT_CLICK : bool,
     SCROLL_UP : bool,
     SCROLL_DOWN : bool,
+    SCROLL_DELTA : f64,
     FORWARD : bool,
     BACKWARD : bool,
     LEFT : bool,
@@ -42,6 +56,12 @@ Input :: struct {
     SPRINT : bool,
     CROUCH : bool,
     MOUSE_POS: [2]f64,
+    MOUSE_DELTA: [2]f64,
+    LAST_MOUSE_POS: [2]f64,
+    MOUSE_INITIALIZED: bool,
+    MOUSE_LOOK_ACTIVE: bool,
+    MOUSE_WARMUP_FRAMES: i32,
+    MOUSE_SKIP_NEXT_DELTA: bool,
 }
 
 // Specific behaviours based on game mode

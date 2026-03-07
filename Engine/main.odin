@@ -14,7 +14,7 @@ import "orion"
 
 main :: proc() {
     //fmt.println("Hellooopeee")
-    orion.initGL(800, 400)
+    orion.initGL(800, 800)
 
     scene := initScene01()
 
@@ -27,21 +27,41 @@ main :: proc() {
 
 initScene01 :: proc() -> ^orion.Scene {
     //Init scene
-    current_scene := orion.initScene("Scene01")
+    current_scene := orion.initScene("Scene01", 45.0)
     //Init shaders
-    sha_flat01 := orion.createShader("vertex.glsl", "fragment.glsl")
+    sha_vc := orion.createShader("vertex.glsl", "fragment.glsl")
+    sha_flat := orion.createShader("vertex.glsl", "fragment_flat.glsl")
     //Init materials
-    m_flat01 := orion.createMaterial(sha_flat01, m.vec4{0.39, 0.58, 0.93, 1.0})
+    m_vc01 := orion.createMaterial(sha_vc, m.vec4{1.0, 1.0, 1.0, 1.0})
+    m_flat_gray := orion.createMaterial(sha_flat, m.vec4{0.25, 0.25, 0.25, 1.0})
+    m_flat_red := orion.createMaterial(sha_flat, m.vec4{1.0, 0.0, 0.0, 1.0})
+    m_flat_green := orion.createMaterial(sha_flat, m.vec4{0.0, 1.0, 0.0, 1.0})
+    m_flat_blue := orion.createMaterial(sha_flat, m.vec4{0.0, 0.0, 1.0, 1.0})
+    
+    //Init axis lines
+    x_axis_line := orion.initLineMesh(orion.s_line, m_flat_red)
+    orion.translate(x_axis_line, m.vec3{0,-0.425,0})
+    orion.scale(x_axis_line, m.vec3{1000, 1, 1})
+
+    y_axis_line := orion.initLineMesh(orion.s_line, m_flat_green)
+    orion.translate(y_axis_line, m.vec3{0,-0.425,0})
+    orion.scale(y_axis_line, m.vec3{1000, 1, 1})
+    orion.rotate(y_axis_line, m.vec3{0,0,1}, 90)
+
+    z_axis_line := orion.initLineMesh(orion.s_line, m_flat_blue)
+    orion.translate(z_axis_line, m.vec3{0,-0.425,0})
+    orion.scale(z_axis_line, m.vec3{1000, 1, 1})
+    orion.rotate(z_axis_line, m.vec3{0,1,0}, 90)
+
+    //Init floor plane
+    floor_plane := orion.initStaticMesh(orion.s_plane, m_flat_gray)
+    orion.translate(floor_plane, m.vec3{0,0,0})
+    orion.scaleUniform(floor_plane, 1000)
+
     //Init meshes
-    triangle01 := orion.initStaticMesh(orion.s_triangle, m_flat01)
-    orion.translate(triangle01, m.vec3{0,0,0})
-    //orion.rotate(triangle01, m.vec3{0,0,1}, 0)
+    triangle01 := orion.initStaticMesh(orion.s_triangle, m_vc01)
+    orion.translate(triangle01, m.vec3{0,0.5,0})
     orion.scaleUniform(triangle01, 1)
-    /*
-    cube07 := orion.initStaticMesh(orion.s_cube, m_flat01)
-    orion.translate(cube07, m.vec3{0,0,0})
-    orion.scale(cube07, m.vec3{5,5,5})
-    orion.rotate(cube07, m.vec3{0,1,0}, 45)
-*/
+
     return current_scene
 }

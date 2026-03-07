@@ -75,9 +75,14 @@ Camera :: struct {
     current_speed: f32,
     sprint: bool,
     sprint_mult: f32,
+    speed_mult: f32,
     movement: CamMovement,
     near_plane: f32,
     far_plane: f32,
+    stand_y: f32,
+    crouch_y: f32,
+    vertical_velocity: f32,
+    is_jumping: bool,
 }
 
 //Add component to handle static mesh rendering
@@ -85,6 +90,7 @@ StaticMesh :: struct {
     mesh : Shape,
     material : Material,
     model_matrix : m.mat4,
+    draw_mode : u32,
     vao: u32,
     buffer_vertices : u32,
     buffer_indices : u32,

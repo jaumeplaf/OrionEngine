@@ -12,11 +12,30 @@ import gl "vendor:OpenGL"
 
 keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
     context = runtime.default_context()
-    cam := &GAME.ACTIVE_SCENE.components.cameras[GAME.ACTIVE_CAMERA]
+
     if action == glfw.PRESS {
         switch key {
+        case glfw.KEY_0:
+            swapActiveCamera()
         case glfw.KEY_ESCAPE:
-            GAME.EXIT = true
+            scene := GAME.ACTIVE_SCENE
+            if scene != nil {
+                if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok && cam.style == .editor {
+                    GAME.INPUT.RIGHT_CLICK = false
+                    applyCursorModeForCamera(cam.style)
+                    return
+                }
+            }
+
+            if GAME.INPUT.MOUSE_LOOK_ACTIVE {
+                glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_NORMAL)
+                GAME.INPUT.MOUSE_LOOK_ACTIVE = false
+                GAME.INPUT.MOUSE_INITIALIZED = false
+                GAME.INPUT.MOUSE_DELTA = [2]f64{0, 0}
+                GAME.INPUT.MOUSE_SKIP_NEXT_DELTA = true
+            } else {
+                GAME.EXIT = true
+            }
         case glfw.KEY_W:
             GAME.INPUT.FORWARD = true
             if GAME.DEBUG {
@@ -97,6 +116,20 @@ keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods:
 mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32) {
     context = runtime.default_context()
     if action == glfw.PRESS {
+        scene := GAME.ACTIVE_SCENE
+        if scene != nil {
+            if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok {
+                if cam.style == .fps && !GAME.INPUT.MOUSE_LOOK_ACTIVE {
+                    applyCursorModeForCamera(.fps)
+                }
+
+                if cam.style == .editor && button == glfw.MOUSE_BUTTON_RIGHT {
+                    GAME.INPUT.RIGHT_CLICK = true
+                    applyCursorModeForCamera(.editor)
+                }
+            }
+        }
+
         switch button {
         case glfw.MOUSE_BUTTON_LEFT:
             GAME.INPUT.LEFT_CLICK = true
@@ -115,6 +148,16 @@ mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32)
             }
         }
     } else if action == glfw.RELEASE {
+        scene := GAME.ACTIVE_SCENE
+        if scene != nil {
+            if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok {
+                if cam.style == .editor && button == glfw.MOUSE_BUTTON_RIGHT {
+                    GAME.INPUT.RIGHT_CLICK = false
+                    applyCursorModeForCamera(.editor)
+                }
+            }
+        }
+
         switch button {
         case glfw.MOUSE_BUTTON_LEFT:
             GAME.INPUT.LEFT_CLICK = false
@@ -138,6 +181,45 @@ mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32)
 cursorPositionCallback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
     context = runtime.default_context()
 	GAME.INPUT.MOUSE_POS = [2]f64{xpos, ypos}
+
+    if !GAME.INPUT.MOUSE_LOOK_ACTIVE {
+        GAME.INPUT.LAST_MOUSE_POS = GAME.INPUT.MOUSE_POS
+        GAME.INPUT.MOUSE_INITIALIZED = true
+        return
+    }
+
+    if GAME.INPUT.MOUSE_WARMUP_FRAMES > 0 {
+        GAME.INPUT.LAST_MOUSE_POS = GAME.INPUT.MOUSE_POS
+        GAME.INPUT.MOUSE_WARMUP_FRAMES -= 1
+        GAME.INPUT.MOUSE_INITIALIZED = true
+        return
+    }
+
+    if !GAME.INPUT.MOUSE_INITIALIZED {
+        GAME.INPUT.LAST_MOUSE_POS = GAME.INPUT.MOUSE_POS
+        GAME.INPUT.MOUSE_INITIALIZED = true
+        return
+    }
+
+    delta_x := xpos - GAME.INPUT.LAST_MOUSE_POS[0]
+    delta_y := ypos - GAME.INPUT.LAST_MOUSE_POS[1]
+
+    if GAME.INPUT.MOUSE_SKIP_NEXT_DELTA {
+        GAME.INPUT.MOUSE_SKIP_NEXT_DELTA = false
+        GAME.INPUT.LAST_MOUSE_POS = GAME.INPUT.MOUSE_POS
+        return
+    }
+
+    spike_threshold: f64 = 200
+    if m.abs_f64(delta_x) > spike_threshold || m.abs_f64(delta_y) > spike_threshold {
+        GAME.INPUT.LAST_MOUSE_POS = GAME.INPUT.MOUSE_POS
+        return
+    }
+
+    GAME.INPUT.MOUSE_DELTA[0] += delta_x
+    GAME.INPUT.MOUSE_DELTA[1] += delta_y
+    GAME.INPUT.LAST_MOUSE_POS = GAME.INPUT.MOUSE_POS
+
 	if GAME.DEBUG {
         //fmt.println("Mouse moved: ", "x-", xpos, "y-", ypos)
     }
@@ -145,6 +227,7 @@ cursorPositionCallback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) 
 
 scrollCallback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
 	context = runtime.default_context()
+    GAME.INPUT.SCROLL_DELTA += yoffset
     if yoffset > 0 {
         GAME.INPUT.SCROLL_UP = true
         GAME.INPUT.SCROLL_DOWN = false
@@ -167,6 +250,16 @@ framebufferSizeCallback :: proc "c" (window: glfw.WindowHandle, width, height: i
 	GAME.RATIO = getAspectRatio_i32(width, height)
     gl.Viewport(0, 0, width, height)
 	GAME.RESIZE = true
+
+    if GAME.ACTIVE_SCENE != nil {
+        scene := GAME.ACTIVE_SCENE
+        if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok {
+            calculateProjectionMatrix(&cam)
+            scene.components.cameras[GAME.ACTIVE_CAMERA] = cam
+            updateProjectionMatrix()
+        }
+    }
+
 	if GAME.DEBUG {
         fmt.println("Framebuffer resized: ", "w-", width, "h-", height)
     }

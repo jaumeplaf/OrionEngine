@@ -31,6 +31,16 @@ s_plane := Shape{
     },
 }
 
+s_line := Shape{
+    vertices = []f32{
+        -0.5, 0.0, 0.0,
+         0.5, 0.0, 0.0,
+    },
+    indices = []u16{
+        0, 1,
+    },
+}
+
 s_cube := Shape{
     vertices = []f32 {
         // Positions
