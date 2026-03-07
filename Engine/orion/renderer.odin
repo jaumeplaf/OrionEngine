@@ -45,8 +45,18 @@ initGL :: proc(width: i32, height: i32) {
     // Load OpenGL functions (automatic in WebGL, explicit here)
     gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
-    GAME.RATIO = getAspectRatio_i32(width, height)
-    gl.Viewport(0, 0, width, height)
+    fb_width_c, fb_height_c := glfw.GetFramebufferSize(GAME.WINDOW)
+    fb_width := i32(fb_width_c)
+    fb_height := i32(fb_height_c)
+    if fb_width <= 0 || fb_height <= 0 {
+        fb_width = width
+        fb_height = height
+    }
+
+    // On macOS Retina displays the framebuffer can be larger than the logical window size.
+    // Initialize the viewport from framebuffer size so the first frame is rendered correctly.
+    GAME.RATIO = getAspectRatio_i32(fb_width, fb_height)
+    gl.Viewport(0, 0, fb_width, fb_height)
 
     initRendering()
 

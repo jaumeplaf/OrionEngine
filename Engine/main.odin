@@ -40,16 +40,16 @@ initScene01 :: proc() -> ^orion.Scene {
     
     //Init axis lines
     x_axis_line := orion.initLineMesh(orion.s_line, m_flat_red)
-    orion.translate(x_axis_line, m.vec3{0,-0.425,0})
+    orion.translate(x_axis_line, m.vec3{0,0.025,0})
     orion.scale(x_axis_line, m.vec3{1000, 1, 1})
 
     y_axis_line := orion.initLineMesh(orion.s_line, m_flat_green)
-    orion.translate(y_axis_line, m.vec3{0,-0.425,0})
+    orion.translate(y_axis_line, m.vec3{0,0,0})
     orion.scale(y_axis_line, m.vec3{1000, 1, 1})
     orion.rotate(y_axis_line, m.vec3{0,0,1}, 90)
 
     z_axis_line := orion.initLineMesh(orion.s_line, m_flat_blue)
-    orion.translate(z_axis_line, m.vec3{0,-0.425,0})
+    orion.translate(z_axis_line, m.vec3{0,0.025,0})
     orion.scale(z_axis_line, m.vec3{1000, 1, 1})
     orion.rotate(z_axis_line, m.vec3{0,1,0}, 90)
 

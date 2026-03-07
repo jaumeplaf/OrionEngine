@@ -18,24 +18,7 @@ keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods:
         case glfw.KEY_0:
             swapActiveCamera()
         case glfw.KEY_ESCAPE:
-            scene := GAME.ACTIVE_SCENE
-            if scene != nil {
-                if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok && cam.style == .editor {
-                    GAME.INPUT.RIGHT_CLICK = false
-                    applyCursorModeForCamera(cam.style)
-                    return
-                }
-            }
-
-            if GAME.INPUT.MOUSE_LOOK_ACTIVE {
-                glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_NORMAL)
-                GAME.INPUT.MOUSE_LOOK_ACTIVE = false
-                GAME.INPUT.MOUSE_INITIALIZED = false
-                GAME.INPUT.MOUSE_DELTA = [2]f64{0, 0}
-                GAME.INPUT.MOUSE_SKIP_NEXT_DELTA = true
-            } else {
-                GAME.EXIT = true
-            }
+            GAME.EXIT = true
         case glfw.KEY_W:
             GAME.INPUT.FORWARD = true
             if GAME.DEBUG {
