@@ -7,30 +7,29 @@ out vec4 FragColor;
 uniform vec4 color;
 
 void main() {
-    float threshold = 0.98; // stay under 1
-    float lineWidth = 1 - threshold;
-    float axisWidth = 0.01;
-    float meterLine = 2.5;
-    float sX;
-    float sZ;
+    float threshold = 0.98; // ground line width, stay under 1
+    float smallMeterLine = 1.0;
+    float bigMeterLine = 5.0;
+    float halfWidthThreshold = 1.0 - ((1.0 - threshold) * 0.5);
+    float bigX;
+    float bigZ;
+    float smallX;
+    float smallZ;
     vec4 fColor;
     vec4 lineCol = vec4(color.rgb * 0.75, 1.0);
-    float posX;
-    float posZ;
 
-    /*
-    if(abs(vertexPos.x + lineWidth) < axisWidth){
-        FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-    }
-    else if(abs(vertexPos.z + lineWidth) < axisWidth){
-        FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }
-    else{
-    */
-        sX = step(threshold, fract(vertexPos.x / meterLine));
-        sZ = step(threshold, fract(vertexPos.z / meterLine));
-        float s = clamp(sX + sZ, 0.0, 1.0);
-        fColor = mix(color, lineCol, s);
-        FragColor = fColor;
-    //}
+    bigX = step(threshold, fract(vertexPos.x / bigMeterLine));
+    bigZ = step(threshold, fract(vertexPos.z / bigMeterLine));
+
+    // Minor grid lines use half the major line width.
+    smallX = step(halfWidthThreshold, fract(vertexPos.x / smallMeterLine));
+    smallZ = step(halfWidthThreshold, fract(vertexPos.z / smallMeterLine));
+
+    float bigMask = clamp(bigX + bigZ, 0.0, 1.0);
+    float smallMask = clamp(smallX + smallZ, 0.0, 1.0);
+    float s = max(bigMask, smallMask);
+
+    fColor = mix(color, lineCol, s);
+    FragColor = fColor;
+
 }
