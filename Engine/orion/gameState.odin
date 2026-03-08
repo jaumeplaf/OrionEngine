@@ -7,7 +7,7 @@ import "vendor:glfw"
 //Redeclarations
 GL_MAJOR_VERSION :: 4
 GL_MINOR_VERSION :: 1
-MAX_SHADERS :: 4
+MAX_SHADERS :: 8
 MAX_ENTITIES :: 1024
 DEBUG_MODE :: false
 AXIS_WIDTH :: 5.0
@@ -39,6 +39,7 @@ Game :: struct {
     EDITOR_CAMERA: u32,
     INPUT: ^Input,
     MODE: ^Mode,
+    UI: ^UI,
     DEBUG: bool,
 }
 
@@ -72,7 +73,7 @@ Mode :: enum {
 }
 
 
-create_game :: proc(debug: bool) -> ^Game {
+createGame :: proc(debug: bool) -> ^Game {
     game := new(Game)
     game^ = Game{
         GL_VERSION = [2]i32{GL_MAJOR_VERSION, GL_MINOR_VERSION},
@@ -84,6 +85,7 @@ create_game :: proc(debug: bool) -> ^Game {
         INPUT = new(Input),
         MODE = new(Mode),
         DEBUG = debug,
+        UI = createUi(),
     }
     return game
 }
@@ -92,6 +94,31 @@ initGameState :: proc(debug: bool = DEBUG_MODE) {
     if GAME != nil {
         return
     }
-    GAME = create_game(debug)
+    GAME = createGame(debug)
 }
 
+destroyGameState :: proc() {
+    if GAME == nil {
+        return
+    }
+    
+    if GAME.UI != nil {
+        destroyUi(GAME.UI)
+        GAME.UI = nil
+    }
+    
+    if GAME.INPUT != nil {
+        free(GAME.INPUT)
+        GAME.INPUT = nil
+    }
+    
+    if GAME.MODE != nil {
+        free(GAME.MODE)
+        GAME.MODE = nil
+    }
+    
+    destroyRendering()
+
+    free(GAME)
+    GAME = nil
+}

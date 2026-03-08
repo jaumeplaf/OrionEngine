@@ -68,6 +68,12 @@ initRendering :: proc(){
     gl.ClearColor(0.5, 0.5, 0.5, 1.0)  // 50% gray background
 }
 
+destroyRendering :: proc() {
+    glfw.DestroyWindow(GAME.WINDOW)
+    GAME.WINDOW = nil
+    glfw.Terminate()
+}
+
 //Draw scene, runs every frame
 drawSystem :: proc(scene: ^Scene) {
     components := scene.components

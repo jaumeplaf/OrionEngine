@@ -822,7 +822,7 @@ relocations:
   - { offset: 0x1EF7B, size: 0x8, addend: 0x0, symName: _orion.rotate, symObjAddr: 0x99B0, symBinAddr: 0x10000A8C0, symSize: 0x270 }
   - { offset: 0x1F02C, size: 0x8, addend: 0x0, symName: _math_linalg_glsl.sqrt_f32, symObjAddr: 0x9C20, symBinAddr: 0x10000AB30, symSize: 0x20 }
   - { offset: 0x1F05E, size: 0x8, addend: 0x0, symName: _runtime.new-63929, symObjAddr: 0x9C40, symBinAddr: 0x10000AB50, symSize: 0x70 }
-  - { offset: 0x1F0B3, size: 0x8, addend: 0x0, symName: _orion.create_game, symObjAddr: 0x9CB0, symBinAddr: 0x10000ABC0, symSize: 0x1A0 }
+  - { offset: 0x1F0B3, size: 0x8, addend: 0x0, symName: _orion.createGame, symObjAddr: 0x9CB0, symBinAddr: 0x10000ABC0, symSize: 0x1A0 }
   - { offset: 0x1F118, size: 0x8, addend: 0x0, symName: _utf8.encode_rune, symObjAddr: 0x9E50, symBinAddr: 0x10000AD60, symSize: 0x1D0 }
   - { offset: 0x1F189, size: 0x8, addend: 0x0, symName: _glfw.WindowHint_int, symObjAddr: 0xA020, symBinAddr: 0x10000AF30, symSize: 0x30 }
   - { offset: 0x1F1C5, size: 0x8, addend: 0x0, symName: _io.write_int, symObjAddr: 0xA050, symBinAddr: 0x10000AF60, symSize: 0xD0 }
