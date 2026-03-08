@@ -57,9 +57,14 @@ initUiRenderer :: proc(ui: ^UI) {
     }
 
     font_candidates := []string{
+        // Windows paths
         "C:\\Windows\\Fonts\\consola.ttf",
         "C:\\Windows\\Fonts\\segoeui.ttf",
         "C:\\Windows\\Fonts\\arial.ttf",
+        // macOS paths
+        "/System/Library/Fonts/Monaco.ttf",
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
+        "/System/Library/Fonts/Supplemental/Courier New.ttf",
     }
 
     for path in font_candidates {
