@@ -9,7 +9,7 @@ GL_MINOR_VERSION :: 1
 MAX_SHADERS :: 8
 MAX_ENTITIES :: 1024
 DEBUG_MODE :: false
-AXIS_WIDTH :: 5.0
+AXIS_WIDTH :: 1.0 //in macos it's limited to 1.0?
 
 //Controls
 SENSITIVITY :: 1.0
