@@ -2,7 +2,6 @@ package orion
 
 import "core:fmt"
 import m "core:math/linalg/glsl"
-import gl "vendor:OpenGL"
 
 //Create a new entity with a mesh and a transform component 
 initStaticMesh :: proc(mesh: Shape, material: ^Material) -> entity_id{
@@ -36,14 +35,14 @@ initLineMesh :: proc(mesh: Shape, material: ^Material) -> entity_id{
         fmt.println("Creating line entity with id:", id)
     }
 
-    createMesh(id, mesh, material, gl.LINES)
+    createMesh(id, mesh, material, .Lines)
     createTransform(id, m.vec3{0, 0, 0}, m.vec3{0, 1, 0}, 0, m.vec3{1, 1, 1})
 
     return id
 }
 
 //Create a new mesh component on an entity
-createMesh :: proc(id: entity_id, mesh: Shape, material: ^Material, draw_mode: u32 = gl.TRIANGLES){
+createMesh :: proc(id: entity_id, mesh: Shape, material: ^Material, draw_mode: RHI_Primitive = .Triangles){
     scene := GAME.ACTIVE_SCENE
     scene.components.meshes[id] = StaticMesh{
         mesh = mesh,
@@ -58,10 +57,7 @@ initMeshBuffers :: proc(mesh: ^StaticMesh){
     mesh_object := mesh
 
     //VAO/VBO/EBO setup
-    vao, vbo, ebo: u32
-    gl.GenVertexArrays(1, &vao)
-    gl.GenBuffers(1, &vbo)
-    gl.GenBuffers(1, &ebo)
+    vao, vbo, ebo := rhiCreateMeshBuffers(mesh_object.mesh.vertices, mesh_object.mesh.indices)
 
     mesh_object.vao = vao
     mesh_object.buffer_vertices = vbo
@@ -69,28 +65,12 @@ initMeshBuffers :: proc(mesh: ^StaticMesh){
 
     mesh_object.model_matrix = m.identity(m.mat4)
 
-
-    gl.BindVertexArray(vao)
-
-    // Vertex Buffer (like WebGL ARRAY_BUFFER)
-    gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-    gl.BufferData(gl.ARRAY_BUFFER, len(mesh_object.mesh.vertices) * size_of(f32), raw_data(mesh_object.mesh.vertices), gl.STATIC_DRAW)
-
-    // Element Buffer (like WebGL ELEMENT_ARRAY_BUFFER)
-    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(mesh_object.mesh.indices) * size_of(u16), raw_data(mesh_object.mesh.indices), gl.STATIC_DRAW)
-
-    // Position attribute (similar to vertexAttribPointer)
-    gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3 * size_of(f32), 0)
-    gl.EnableVertexAttribArray(0)
 }
 
 meshDestroy :: proc(id: entity_id){
     components := GAME.ACTIVE_SCENE.components
     mesh := &components.meshes[id]
-    gl.DeleteVertexArrays(1, &mesh.vao)
-    gl.DeleteBuffers(1, &mesh.buffer_vertices)
-    gl.DeleteBuffers(1, &mesh.buffer_indices)
+    rhiDestroyMeshBuffers(&mesh.vao, &mesh.buffer_vertices, &mesh.buffer_indices)
     delete_key(&components.meshes, id)
 }
 

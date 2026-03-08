@@ -4,7 +4,6 @@ import "core:fmt"
 import "core:os"
 import "base:runtime"
 import m "core:math/linalg/glsl"
-import gl "vendor:OpenGL"
 
 
 Material :: struct {
@@ -14,14 +13,12 @@ Material :: struct {
 }
 
 Shader :: struct {
-    program : u32,
+    pipeline_handle : u32,
     success : bool,
-    vertex_position : u32,
-    indices : u32,
-    model_matrix_index : i32,
-    view_matrix_index : i32,
-    projection_matrix_index : i32,
-    color : i32
+    model_uniform : i32,
+    view_uniform : i32,
+    projection_uniform : i32,
+    color_uniform : i32,
 }
 
 ShaderManager :: struct {
@@ -72,7 +69,7 @@ createShader :: proc(vertex_path: string, fragement_path: string) -> ^Shader {
         fmt.eprintln("Fragment shader not found at:", frag_path)
     }
     
-    shader.program, shader.success = gl.load_shaders_file(vert_path, frag_path)
+    shader.pipeline_handle, shader.success = rhiCreateShaderProgram(vert_path, frag_path)
     if !shader.success {
         fmt.eprintln("Failed to load shaders at path:", vert_path, frag_path)
     }
@@ -83,7 +80,7 @@ createShader :: proc(vertex_path: string, fragement_path: string) -> ^Shader {
 }
 
 destroyShader :: proc(shader: ^Shader) {
-    gl.DeleteProgram(shader.program)
+    rhiDestroyShaderProgram(shader.pipeline_handle)
     free(shader)
 }
 destroyMaterial :: proc(material: ^Material) {
@@ -91,35 +88,35 @@ destroyMaterial :: proc(material: ^Material) {
 }
 
 initializeUniforms :: proc(shader: ^Shader){
-    if !shader.success || shader.program == 0 {
+    if !shader.success || shader.pipeline_handle == 0 {
         return
     }
 
     if GAME.DEBUG {
         fmt.println("Initializing model matrix index")
     }
-    shader.model_matrix_index = gl.GetUniformLocation(shader.program, "model_matrix")
+    shader.model_uniform = rhiGetUniformLocation(shader.pipeline_handle, "model_matrix")
     if GAME.DEBUG {
         fmt.println("Initializing view matrix index")
     } 
-    shader.view_matrix_index = gl.GetUniformLocation(shader.program, "view_matrix")
+    shader.view_uniform = rhiGetUniformLocation(shader.pipeline_handle, "view_matrix")
     if GAME.DEBUG {
         fmt.println("Initializing projection matrix index")
     }
-    shader.projection_matrix_index = gl.GetUniformLocation(shader.program, "projection_matrix")
-    shader.color = gl.GetUniformLocation(shader.program, "color")
+    shader.projection_uniform = rhiGetUniformLocation(shader.pipeline_handle, "projection_matrix")
+    shader.color_uniform = rhiGetUniformLocation(shader.pipeline_handle, "color")
 
     scene := GAME.ACTIVE_SCENE
     if scene == nil {
         return
     }
     if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok {
-        gl.UseProgram(shader.program)
-        if shader.view_matrix_index >= 0 {
-            gl.UniformMatrix4fv(shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
+        rhiUseProgram(shader.pipeline_handle)
+        if shader.view_uniform >= 0 {
+            rhiSetUniformMat4(shader.view_uniform, &cam.view_matrix[0][0])
         }
-        if shader.projection_matrix_index >= 0 {
-            gl.UniformMatrix4fv(shader.projection_matrix_index, 1, false, &cam.projection_matrix[0][0])
+        if shader.projection_uniform >= 0 {
+            rhiSetUniformMat4(shader.projection_uniform, &cam.projection_matrix[0][0])
         }
     }
 }
@@ -127,8 +124,8 @@ initializeUniforms :: proc(shader: ^Shader){
 setModelMatrix :: proc(id: entity_id){
     scene := GAME.ACTIVE_SCENE
     mesh := scene.components.meshes[id]
-    gl.UseProgram(mesh.material.shader.program)
-    gl.UniformMatrix4fv(mesh.material.shader.model_matrix_index, 1, false, &mesh.model_matrix[0][0])
+    rhiUseProgram(mesh.material.shader.pipeline_handle)
+    rhiSetUniformMat4(mesh.material.shader.model_uniform, &mesh.model_matrix[0][0])
 }
 
 updateViewMatrix :: proc(){
@@ -140,16 +137,16 @@ updateViewMatrix :: proc(){
             }
     cam := scene.components.cameras[GAME.ACTIVE_CAMERA]
     for shader in shaders {
-        if shader != nil && shader.success && shader.program != 0 {
+        if shader != nil && shader.success && shader.pipeline_handle != 0 {
             if GAME.DEBUG {
-                fmt.println("Initializing shader: ", shader.program)
+                fmt.println("Initializing shader: ", shader.pipeline_handle)
             }
-            if shader.view_matrix_index >= 0 {
-                gl.UseProgram(shader.program)
+            if shader.view_uniform >= 0 {
+                rhiUseProgram(shader.pipeline_handle)
                 if GAME.DEBUG {
                     fmt.println("Setting view matrix: ", cam.view_matrix)
                 }
-                gl.UniformMatrix4fv(shader.view_matrix_index, 1, false, &cam.view_matrix[0][0])
+                rhiSetUniformMat4(shader.view_uniform, &cam.view_matrix[0][0])
             }
         }
     }
@@ -166,16 +163,16 @@ updateProjectionMatrix :: proc(){
         fmt.println("--> Active camera: ", GAME.ACTIVE_CAMERA)
     }
     for shader in shaders {
-        if shader != nil && shader.success && shader.program != 0 {
+        if shader != nil && shader.success && shader.pipeline_handle != 0 {
             if GAME.DEBUG {
-                fmt.println("Initializing shader: ", shader.program)
+                fmt.println("Initializing shader: ", shader.pipeline_handle)
             }
-            if shader.projection_matrix_index >= 0 {
-                gl.UseProgram(shader.program)
+            if shader.projection_uniform >= 0 {
+                rhiUseProgram(shader.pipeline_handle)
                 if GAME.DEBUG {
                     fmt.println("Setting projection matrix: ", cam.projection_matrix)
                 }
-                gl.UniformMatrix4fv(shader.projection_matrix_index, 1, false, &cam.projection_matrix[0][0])
+                rhiSetUniformMat4(shader.projection_uniform, &cam.projection_matrix[0][0])
             }
         }
 

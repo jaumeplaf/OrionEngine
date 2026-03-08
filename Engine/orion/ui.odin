@@ -6,8 +6,6 @@ import "core:time"
 import "core:unicode/utf8"
 import mui "vendor:microui"
 import nvg "vendor:nanovg"
-import nvg_gl "vendor:nanovg/gl"
-import "vendor:glfw"
 
 // UI holds all runtime state for the microui -> NanoVG overlay pipeline.
 UI :: struct {
@@ -50,7 +48,7 @@ initUiRenderer :: proc(ui: ^UI) {
         return
     }
 
-    ui.vg = nvg_gl.Create({.ANTI_ALIAS, .STENCIL_STROKES})
+    ui.vg = rhiCreateUiContext()
     if ui.vg == nil {
         fmt.eprintln("Failed to initialize NanoVG context for debug UI")
         return
@@ -200,19 +198,19 @@ uiMouseMove :: proc(x, y: f64) {
 }
 
 // GLFW -> microui mouse button bridge.
-uiMouseButton :: proc(button, action: i32, x, y: f64) {
+uiMouseButton :: proc(button: RHI_Mouse_Button, action: RHI_Input_Action, x, y: f64) {
     if GAME == nil || GAME.UI == nil || GAME.UI.ctx == nil {
         return
     }
 
     btn: mui.Mouse
     ok := true
-    switch button {
-    case glfw.MOUSE_BUTTON_LEFT:
+    #partial switch button {
+    case .Left:
         btn = .LEFT
-    case glfw.MOUSE_BUTTON_RIGHT:
+    case .Right:
         btn = .RIGHT
-    case glfw.MOUSE_BUTTON_MIDDLE:
+    case .Middle:
         btn = .MIDDLE
     case:
         ok = false
@@ -222,9 +220,9 @@ uiMouseButton :: proc(button, action: i32, x, y: f64) {
         return
     }
 
-    if action == glfw.PRESS {
+    if action == .Press {
         mui.input_mouse_down(GAME.UI.ctx, i32(x), i32(y), btn)
-    } else if action == glfw.RELEASE {
+    } else if action == .Release {
         mui.input_mouse_up(GAME.UI.ctx, i32(x), i32(y), btn)
     }
 }
@@ -250,41 +248,41 @@ uiTextInput :: proc(codepoint: rune) {
 }
 
 // GLFW -> microui key mapping for navigation/edit shortcuts.
-uiKeyEvent :: proc(key, action, mods: i32) {
+uiKeyEvent :: proc(key: RHI_Key, action: RHI_Input_Action, mods: i32) {
     if GAME == nil || GAME.UI == nil || GAME.UI.ctx == nil {
         return
     }
 
     mapped: mui.Key
     ok := true
-    switch key {
-    case glfw.KEY_LEFT_SHIFT, glfw.KEY_RIGHT_SHIFT:
+    #partial switch key {
+    case .LeftShift, .RightShift:
         mapped = .SHIFT
-    case glfw.KEY_LEFT_CONTROL, glfw.KEY_RIGHT_CONTROL:
+    case .LeftControl, .RightControl:
         mapped = .CTRL
-    case glfw.KEY_LEFT_ALT, glfw.KEY_RIGHT_ALT:
+    case .LeftAlt, .RightAlt:
         mapped = .ALT
-    case glfw.KEY_BACKSPACE:
+    case .Backspace:
         mapped = .BACKSPACE
-    case glfw.KEY_DELETE:
+    case .Delete:
         mapped = .DELETE
-    case glfw.KEY_ENTER, glfw.KEY_KP_ENTER:
+    case .Enter, .KpEnter:
         mapped = .RETURN
-    case glfw.KEY_LEFT:
+    case .Left:
         mapped = .LEFT
-    case glfw.KEY_RIGHT:
+    case .Right:
         mapped = .RIGHT
-    case glfw.KEY_HOME:
+    case .Home:
         mapped = .HOME
-    case glfw.KEY_END:
+    case .End:
         mapped = .END
-    case glfw.KEY_A:
+    case .A:
         mapped = .A
-    case glfw.KEY_X:
+    case .X:
         mapped = .X
-    case glfw.KEY_C:
+    case .C:
         mapped = .C
-    case glfw.KEY_V:
+    case .V:
         mapped = .V
     case:
         ok = false
@@ -295,9 +293,9 @@ uiKeyEvent :: proc(key, action, mods: i32) {
     }
 
     _ = mods
-    if action == glfw.PRESS {
+    if action == .Press {
         mui.input_key_down(GAME.UI.ctx, mapped)
-    } else if action == glfw.RELEASE {
+    } else if action == .Release {
         mui.input_key_up(GAME.UI.ctx, mapped)
     }
 }
@@ -369,12 +367,10 @@ uiTextHeight :: proc(font: mui.Font) -> i32 {
 
 // Query framebuffer pixels (used for DPI ratio and GL viewport logic).
 getFramebufferSize :: proc() -> (width, height: i32) {
-    if GAME == nil || GAME.WINDOW == nil {
+    if GAME == nil {
         return 1, 1
     }
-    w, h := glfw.GetFramebufferSize(GAME.WINDOW)
-    width = i32(w)
-    height = i32(h)
+    width, height = rhiGetFramebufferSize()
     if width <= 0 {
         width = 1
     }
@@ -386,12 +382,10 @@ getFramebufferSize :: proc() -> (width, height: i32) {
 
 // Query logical window size (used for UI anchoring/layout positions).
 getWindowSize :: proc() -> (width, height: i32) {
-    if GAME == nil || GAME.WINDOW == nil {
+    if GAME == nil {
         return 1, 1
     }
-    w, h := glfw.GetWindowSize(GAME.WINDOW)
-    width = i32(w)
-    height = i32(h)
+    width, height = rhiGetWindowSize()
     if width <= 0 {
         width = 1
     }
@@ -408,7 +402,7 @@ destroyUi :: proc(ui: ^UI) {
     }
 
     if ui.vg != nil {
-        nvg_gl.Destroy(ui.vg)
+        rhiDestroyUiContext(ui.vg)
         ui.vg = nil
     }
 

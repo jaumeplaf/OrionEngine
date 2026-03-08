@@ -2,7 +2,6 @@ package orion
 
 import "core:fmt"
 import m "core:math/linalg/glsl"
-import "vendor:glfw"
 
 CamMovement :: enum{
     idle,
@@ -83,7 +82,7 @@ syncAnglesFromTarget :: proc(cam: ^Camera) {
 
 applyCursorModeForCamera :: proc(style: CamStyle) {
     if style == .fps {
-        glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_DISABLED)
+        rhiSetCursorMode(.Disabled)
         GAME.INPUT.MOUSE_LOOK_ACTIVE = true
         GAME.INPUT.MOUSE_INITIALIZED = false
         GAME.INPUT.MOUSE_WARMUP_FRAMES = 2
@@ -91,10 +90,10 @@ applyCursorModeForCamera :: proc(style: CamStyle) {
         GAME.INPUT.MOUSE_SKIP_NEXT_DELTA = true
     } else {
         if GAME.INPUT.RIGHT_CLICK {
-            glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_DISABLED)
+            rhiSetCursorMode(.Disabled)
             GAME.INPUT.MOUSE_LOOK_ACTIVE = true
         } else {
-            glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_NORMAL)
+            rhiSetCursorMode(.Normal)
             GAME.INPUT.MOUSE_LOOK_ACTIVE = false
         }
         GAME.INPUT.MOUSE_INITIALIZED = false

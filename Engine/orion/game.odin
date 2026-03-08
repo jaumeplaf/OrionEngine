@@ -1,11 +1,10 @@
 package orion
 
 import "core:fmt"
-import "vendor:glfw"
 
 gameLoop :: proc(scene: ^Scene) { 
-    for !glfw.WindowShouldClose(GAME.WINDOW) && GAME.EXIT == false {
-        glfw.PollEvents()
+    for !rhiWindowShouldClose() && GAME.EXIT == false {
+        rhiPollEvents()
         tick()
         drawSystem(scene)
     }

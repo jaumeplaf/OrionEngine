@@ -5,102 +5,75 @@ import "core:c"
 import "core:time"
 import m "core:math/linalg/glsl"
 import "base:runtime"
-import "vendor:glfw"
-import gl "vendor:OpenGL"
 
-//Event callbacks
+// Backend-specific callbacks should map to these handlers.
 
-keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
+handleKeyInput :: proc(key: RHI_Key, action: RHI_Input_Action, mods: i32) {
     context = runtime.default_context()
     uiKeyEvent(key, action, mods)
 
-    if action == glfw.PRESS {
-        switch key {
-        case glfw.KEY_0:
+    if action == .Press {
+        #partial switch key {
+        case .K0:
             swapActiveCamera()
-        case glfw.KEY_ESCAPE:
+        case .Escape:
             GAME.EXIT = true
-        case glfw.KEY_W:
+        case .W:
             GAME.INPUT.FORWARD = true
-            if GAME.DEBUG {
-                fmt.println("W pressed")
-            }
-        case glfw.KEY_S:
+            if GAME.DEBUG { fmt.println("W pressed") }
+        case .S:
             GAME.INPUT.BACKWARD = true
-            if GAME.DEBUG {
-                fmt.println("S pressed")
-            }
-        case glfw.KEY_A:
+            if GAME.DEBUG { fmt.println("S pressed") }
+        case .A:
             GAME.INPUT.LEFT = true
-            if GAME.DEBUG {
-                fmt.println("A pressed")
-            }
-        case glfw.KEY_D:
+            if GAME.DEBUG { fmt.println("A pressed") }
+        case .D:
             GAME.INPUT.RIGHT = true
-            if GAME.DEBUG {
-                fmt.println("D pressed")
-            }
-        case glfw.KEY_SPACE:
+            if GAME.DEBUG { fmt.println("D pressed") }
+        case .Space:
             GAME.INPUT.JUMP = true
-            if GAME.DEBUG {
-                fmt.println("Space pressed")
-            }
-        case glfw.KEY_LEFT_SHIFT:
+            if GAME.DEBUG { fmt.println("Space pressed") }
+        case .LeftShift:
             GAME.INPUT.SPRINT = true
-            if GAME.DEBUG {
-                fmt.println("Shift pressed")
-            }
-        case glfw.KEY_LEFT_CONTROL:
+            if GAME.DEBUG { fmt.println("Shift pressed") }
+        case .LeftControl:
             GAME.INPUT.CROUCH = true
-            if GAME.DEBUG {
-                fmt.println("Ctrl pressed")
-            }
+            if GAME.DEBUG { fmt.println("Ctrl pressed") }
+        case:
         }
-    } else if action == glfw.RELEASE {
-        switch key {
-        case glfw.KEY_W:
+    } else if action == .Release {
+        #partial switch key {
+        case .W:
             GAME.INPUT.FORWARD = false
-            if GAME.DEBUG {
-                fmt.println("W released")
-            }
-        case glfw.KEY_S:
+            if GAME.DEBUG { fmt.println("W released") }
+        case .S:
             GAME.INPUT.BACKWARD = false
-            if GAME.DEBUG {
-                fmt.println("S released")
-            }
-        case glfw.KEY_A:
+            if GAME.DEBUG { fmt.println("S released") }
+        case .A:
             GAME.INPUT.LEFT = false
-            if GAME.DEBUG {
-                fmt.println("A released")
-            }
-        case glfw.KEY_D:
+            if GAME.DEBUG { fmt.println("A released") }
+        case .D:
             GAME.INPUT.RIGHT = false
-            if GAME.DEBUG {
-                fmt.println("D released")
-            }
-        case glfw.KEY_SPACE:
+            if GAME.DEBUG { fmt.println("D released") }
+        case .Space:
             GAME.INPUT.JUMP = false
-            if GAME.DEBUG {
-                fmt.println("Space released")
-            }
-        case glfw.KEY_LEFT_SHIFT:
+            if GAME.DEBUG { fmt.println("Space released") }
+        case .LeftShift:
             GAME.INPUT.SPRINT = false
-            if GAME.DEBUG {
-                fmt.println("Shift released")
-            }
-        case glfw.KEY_LEFT_CONTROL:
+            if GAME.DEBUG { fmt.println("Shift released") }
+        case .LeftControl:
             GAME.INPUT.CROUCH = false
-            if GAME.DEBUG {
-                fmt.println("Ctrl released")
-            }
+            if GAME.DEBUG { fmt.println("Ctrl released") }
+        case:
         }
     }
 }
 
-mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32) {
+handleMouseButtonInput :: proc(button: RHI_Mouse_Button, action: RHI_Input_Action) {
     context = runtime.default_context()
     uiMouseButton(button, action, GAME.INPUT.MOUSE_POS[0], GAME.INPUT.MOUSE_POS[1])
-    if action == glfw.PRESS {
+
+    if action == .Press {
         scene := GAME.ACTIVE_SCENE
         if scene != nil {
             if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok {
@@ -108,62 +81,52 @@ mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32)
                     applyCursorModeForCamera(.fps)
                 }
 
-                if cam.style == .editor && button == glfw.MOUSE_BUTTON_RIGHT {
+                if cam.style == .editor && button == .Right {
                     GAME.INPUT.RIGHT_CLICK = true
                     applyCursorModeForCamera(.editor)
                 }
             }
         }
 
-        switch button {
-        case glfw.MOUSE_BUTTON_LEFT:
+        #partial switch button {
+        case .Left:
             GAME.INPUT.LEFT_CLICK = true
-            if GAME.DEBUG {
-                fmt.println("Left mouse button clicked!")
-            }
-        case glfw.MOUSE_BUTTON_MIDDLE:
+            if GAME.DEBUG { fmt.println("Left mouse button clicked!") }
+        case .Middle:
             GAME.INPUT.MIDDLE_CLICK = true
-            if GAME.DEBUG {
-                fmt.println("Middle mouse button clicked!")
-            }
-        case glfw.MOUSE_BUTTON_RIGHT:
+            if GAME.DEBUG { fmt.println("Middle mouse button clicked!") }
+        case .Right:
             GAME.INPUT.RIGHT_CLICK = true
-            if GAME.DEBUG {
-                fmt.println("Right mouse button clicked!")
-            }
+            if GAME.DEBUG { fmt.println("Right mouse button clicked!") }
+        case:
         }
-    } else if action == glfw.RELEASE {
+    } else if action == .Release {
         scene := GAME.ACTIVE_SCENE
         if scene != nil {
             if cam, ok := scene.components.cameras[GAME.ACTIVE_CAMERA]; ok {
-                if cam.style == .editor && button == glfw.MOUSE_BUTTON_RIGHT {
+                if cam.style == .editor && button == .Right {
                     GAME.INPUT.RIGHT_CLICK = false
                     applyCursorModeForCamera(.editor)
                 }
             }
         }
 
-        switch button {
-        case glfw.MOUSE_BUTTON_LEFT:
+        #partial switch button {
+        case .Left:
             GAME.INPUT.LEFT_CLICK = false
-            if GAME.DEBUG {
-                fmt.println("Left mouse button released!")
-            }
-        case glfw.MOUSE_BUTTON_MIDDLE:
+            if GAME.DEBUG { fmt.println("Left mouse button released!") }
+        case .Middle:
             GAME.INPUT.MIDDLE_CLICK = false
-            if GAME.DEBUG {
-                fmt.println("Middle mouse button released!")
-            }
-        case glfw.MOUSE_BUTTON_RIGHT:
+            if GAME.DEBUG { fmt.println("Middle mouse button released!") }
+        case .Right:
             GAME.INPUT.RIGHT_CLICK = false
-            if GAME.DEBUG {
-                fmt.println("Right mouse button released!")
-            }
+            if GAME.DEBUG { fmt.println("Right mouse button released!") }
+        case:
         }
     }
 }
 
-cursorPositionCallback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
+handleCursorPositionInput :: proc(xpos, ypos: f64) {
     context = runtime.default_context()
 	GAME.INPUT.MOUSE_POS = [2]f64{xpos, ypos}
     uiMouseMove(xpos, ypos)
@@ -211,7 +174,7 @@ cursorPositionCallback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) 
     }
 }
 
-scrollCallback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
+handleScrollInput :: proc(xoffset, yoffset: f64) {
 	context = runtime.default_context()
     uiScroll(xoffset, yoffset)
     GAME.INPUT.SCROLL_DELTA += yoffset
@@ -232,10 +195,10 @@ scrollCallback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
     }
 }
 
-framebufferSizeCallback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
+handleFramebufferResize :: proc(width, height: i32) {
 	context = runtime.default_context()
 	GAME.RATIO = getAspectRatio_i32(width, height)
-    gl.Viewport(0, 0, width, height)
+    rhiSetViewport(0, 0, width, height)
 	GAME.RESIZE = true
 
     if GAME.ACTIVE_SCENE != nil {
@@ -253,7 +216,7 @@ framebufferSizeCallback :: proc "c" (window: glfw.WindowHandle, width, height: i
     defer GAME.RESIZE = false
 }
 
-charCallback :: proc "c" (window: glfw.WindowHandle, codepoint: rune) {
+handleTextInput :: proc(codepoint: rune) {
     context = runtime.default_context()
     uiTextInput(codepoint)
 }

@@ -2,7 +2,6 @@ package orion
 
 import "core:fmt"
 import m "core:math/linalg/glsl"
-import "vendor:glfw"
 
 //Redeclarations
 GL_MAJOR_VERSION :: 4
@@ -29,7 +28,7 @@ GAME: ^Game
 //Manage game state globally
 Game :: struct {
     GL_VERSION : [2]i32,
-    WINDOW : glfw.WindowHandle,
+    WINDOW : rawptr,
     RATIO : f32,
     EXIT : bool,
     RESIZE : bool,

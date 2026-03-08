@@ -3,18 +3,14 @@
 
 package engine
 
-import "core:fmt"
-import "core:os"
-import gl "vendor:OpenGL"
 import m "core:math/linalg/glsl"
-import "vendor:glfw"
 import "orion"
 
 //cmd+shift+b to build and run
 
 main :: proc() {
     //fmt.println("Hellooopeee")
-    orion.initGL(800, 800)
+    orion.initWindow(800, 800)
 
     scene := initScene01()
 

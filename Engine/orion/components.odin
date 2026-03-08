@@ -90,7 +90,7 @@ StaticMesh :: struct {
     mesh : Shape,
     material : Material,
     model_matrix : m.mat4,
-    draw_mode : u32,
+    draw_mode : RHI_Primitive,
     vao: u32,
     buffer_vertices : u32,
     buffer_indices : u32,
