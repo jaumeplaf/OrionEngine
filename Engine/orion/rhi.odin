@@ -38,6 +38,7 @@ RHI_Key :: enum {
     Unknown,
     K0,
     Escape,
+    F11,
     W,
     S,
     A,
@@ -272,6 +273,14 @@ rhiSwapBuffers :: proc() {
     switch ACTIVE_RENDER_API {
     case .OpenGL:
         graphicsapis.openglSwapBuffers()
+    case .Metal, .DX11:
+    }
+}
+
+rhiToggleFullscreen :: proc() {
+    switch ACTIVE_RENDER_API {
+    case .OpenGL:
+        graphicsapis.openglToggleFullscreen()
     case .Metal, .DX11:
     }
 }

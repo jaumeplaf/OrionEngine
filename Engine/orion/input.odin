@@ -18,6 +18,8 @@ handleKeyInput :: proc(key: RHI_Key, action: RHI_Input_Action, mods: i32) {
             swapActiveCamera()
         case .Escape:
             GAME.EXIT = true
+        case .F11:
+            rhiToggleFullscreen()
         case .W:
             GAME.INPUT.FORWARD = true
             if GAME.DEBUG { fmt.println("W pressed") }

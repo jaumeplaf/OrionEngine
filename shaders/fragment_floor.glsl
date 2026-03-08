@@ -14,7 +14,7 @@ void main() {
     float sX;
     float sZ;
     vec4 fColor;
-    vec4 lineCol = color * 0.75;
+    vec4 lineCol = vec4(color.rgb * 0.75, 1.0);
     float posX;
     float posZ;
 

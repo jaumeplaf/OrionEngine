@@ -9,6 +9,11 @@ import "base:runtime"
 // OpenGL + GLFW backend implementation used by the engine RHI.
 
 opengl_window: glfw.WindowHandle
+opengl_is_fullscreen: bool
+opengl_windowed_x: i32
+opengl_windowed_y: i32
+opengl_windowed_w: i32
+opengl_windowed_h: i32
 
 // Raw callback hooks set by package `orion`.
 Key_Handler_Raw :: proc(key, action, mods: i32)
@@ -71,50 +76,52 @@ openglMapKey :: proc(key: i32) -> i32 {
 		return 1
 	case glfw.KEY_ESCAPE:
 		return 2
-	case glfw.KEY_W:
+	case glfw.KEY_F11:
 		return 3
-	case glfw.KEY_S:
+	case glfw.KEY_W:
 		return 4
-	case glfw.KEY_A:
+	case glfw.KEY_S:
 		return 5
-	case glfw.KEY_D:
+	case glfw.KEY_A:
 		return 6
-	case glfw.KEY_SPACE:
+	case glfw.KEY_D:
 		return 7
-	case glfw.KEY_LEFT_SHIFT:
+	case glfw.KEY_SPACE:
 		return 8
-	case glfw.KEY_LEFT_CONTROL:
+	case glfw.KEY_LEFT_SHIFT:
 		return 9
-	case glfw.KEY_RIGHT_SHIFT:
+	case glfw.KEY_LEFT_CONTROL:
 		return 10
-	case glfw.KEY_RIGHT_CONTROL:
+	case glfw.KEY_RIGHT_SHIFT:
 		return 11
-	case glfw.KEY_LEFT_ALT:
+	case glfw.KEY_RIGHT_CONTROL:
 		return 12
-	case glfw.KEY_RIGHT_ALT:
+	case glfw.KEY_LEFT_ALT:
 		return 13
-	case glfw.KEY_BACKSPACE:
+	case glfw.KEY_RIGHT_ALT:
 		return 14
-	case glfw.KEY_DELETE:
+	case glfw.KEY_BACKSPACE:
 		return 15
-	case glfw.KEY_ENTER:
+	case glfw.KEY_DELETE:
 		return 16
-	case glfw.KEY_KP_ENTER:
+	case glfw.KEY_ENTER:
 		return 17
-	case glfw.KEY_LEFT:
+	case glfw.KEY_KP_ENTER:
 		return 18
-	case glfw.KEY_RIGHT:
+	case glfw.KEY_LEFT:
 		return 19
-	case glfw.KEY_HOME:
+	case glfw.KEY_RIGHT:
 		return 20
-	case glfw.KEY_END:
+	case glfw.KEY_HOME:
 		return 21
-	case glfw.KEY_X:
+	case glfw.KEY_END:
 		return 22
-	case glfw.KEY_C:
+	case glfw.KEY_X:
 		return 23
-	case glfw.KEY_V:
+	case glfw.KEY_C:
 		return 24
+	case glfw.KEY_V:
+		return 25
 	}
 	return 0
 }
@@ -188,6 +195,14 @@ openglInitWindow :: proc(width, height: i32, title: cstring, major, minor: i32) 
 	}
 
     opengl_window = window
+	opengl_is_fullscreen = false
+
+	wx, wy := glfw.GetWindowPos(window)
+	ww, wh := glfw.GetWindowSize(window)
+	opengl_windowed_x = i32(wx)
+	opengl_windowed_y = i32(wy)
+	opengl_windowed_w = i32(ww)
+	opengl_windowed_h = i32(wh)
 
 	glfw.MakeContextCurrent(window)
 
@@ -255,6 +270,46 @@ openglWindowShouldClose :: proc() -> bool {
 openglSwapBuffers :: proc() {
 	if opengl_window != nil {
 		glfw.SwapBuffers(opengl_window)
+	}
+}
+
+openglToggleFullscreen :: proc() {
+	if opengl_window == nil {
+		return
+	}
+
+	if !opengl_is_fullscreen {
+		wx, wy := glfw.GetWindowPos(opengl_window)
+		ww, wh := glfw.GetWindowSize(opengl_window)
+		opengl_windowed_x = i32(wx)
+		opengl_windowed_y = i32(wy)
+		opengl_windowed_w = i32(ww)
+		opengl_windowed_h = i32(wh)
+
+		monitor := glfw.GetPrimaryMonitor()
+		if monitor == nil {
+			return
+		}
+
+		mode := glfw.GetVideoMode(monitor)
+		if mode == nil {
+			return
+		}
+
+		glfw.SetWindowMonitor(opengl_window, monitor, 0, 0, mode.width, mode.height, mode.refresh_rate)
+		opengl_is_fullscreen = true
+	} else {
+		restore_w := opengl_windowed_w
+		restore_h := opengl_windowed_h
+		if restore_w <= 0 {
+			restore_w = 1280
+		}
+		if restore_h <= 0 {
+			restore_h = 720
+		}
+
+		glfw.SetWindowMonitor(opengl_window, nil, opengl_windowed_x, opengl_windowed_y, restore_w, restore_h, 0)
+		opengl_is_fullscreen = false
 	}
 }
 

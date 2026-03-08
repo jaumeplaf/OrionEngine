@@ -16,6 +16,10 @@ initWindow :: proc(width: i32, height: i32) {
         return
     }
 
+    if GAME.START_FULLSCREEN {
+        rhiToggleFullscreen()
+    }
+
     fb_width, fb_height := rhiGetFramebufferSize()
     if fb_width <= 0 || fb_height <= 0 {
         fb_width = width

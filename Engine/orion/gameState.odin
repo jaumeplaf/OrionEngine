@@ -21,6 +21,7 @@ GRAVITY_ACCEL :: 0.012
 EDITOR_SPEED_MIN :: 0.25
 EDITOR_SPEED_MAX :: 4.0
 EDITOR_SCROLL_STEP :: 0.1
+FULLSCREEN_DEFAULT :: false
 
 // Global game state (initialized at runtime)
 GAME: ^Game
@@ -28,6 +29,7 @@ GAME: ^Game
 //Manage game state globally
 Game :: struct {
     GL_VERSION : [2]i32,
+    START_FULLSCREEN : bool,
     WINDOW : rawptr,
     RATIO : f32,
     EXIT : bool,
@@ -76,6 +78,7 @@ createGame :: proc(debug: bool) -> ^Game {
     game := new(Game)
     game^ = Game{
         GL_VERSION = [2]i32{GL_MAJOR_VERSION, GL_MINOR_VERSION},
+        START_FULLSCREEN = FULLSCREEN_DEFAULT,
         WINDOW = nil,
         RATIO = 0.0,
         EXIT = false,
