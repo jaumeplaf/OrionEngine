@@ -9,6 +9,7 @@ import nvg "vendor:nanovg"
 import nvg_gl "vendor:nanovg/gl"
 import "vendor:glfw"
 
+// UI holds all runtime state for the microui -> NanoVG overlay pipeline.
 UI :: struct {
     ctx: ^mui.Context,
     vg: ^nvg.Context,
@@ -16,6 +17,7 @@ UI :: struct {
     profiler: Frame_Profiler,
 }
 
+// Rolling profiler values used by the top-right debug overlay.
 Frame_Profiler :: struct {
     samples: [120]time.Duration,
     sample_index: int,
@@ -26,8 +28,10 @@ Frame_Profiler :: struct {
     last_update: time.Time,
 }
 
+// microui text callbacks do not receive a user pointer; keep a global owner.
 ui_text_owner: ^UI
 
+// Engine startup allocates microui state and profiler buffers.
 createUi :: proc() -> ^UI {
     ui := new(UI)
     ui.ctx = new(mui.Context)
@@ -36,8 +40,10 @@ createUi :: proc() -> ^UI {
     return ui
 }
 
+// Called once after OpenGL context exists. Creates NanoVG renderer + font.
 initUiRenderer :: proc(ui: ^UI) {
     if ui == nil || ui.ctx == nil {
+        fmt.println("UI context not initialized; cannot create renderer")
         return
     }
     if ui.vg != nil {
@@ -73,16 +79,19 @@ initUiRenderer :: proc(ui: ^UI) {
     ui_text_owner = ui
 }
 
+// Wire microui text measurement callbacks.
 setupUi :: proc(ctx: ^mui.Context) {
 	ctx.text_width = uiTextWidth
 	ctx.text_height = uiTextHeight
 }
 
+// Build a single microui frame (widgets + layout) each engine frame.
 updateUi :: proc(ui: ^UI) {
     if ui == nil || ui.ctx == nil {
         return
     }
 
+    // Refresh frame timing before drawing labels.
     updateFrameProfiler(&ui.profiler)
 
     window_width, _ := getWindowSize()
@@ -95,6 +104,7 @@ updateUi :: proc(ui: ^UI) {
 
     mui.begin(ui.ctx)
 
+    // HUD-style window: no title bar, no interaction, fixed size.
     window_opts: mui.Options = {.NO_INTERACT, .NO_RESIZE, .NO_SCROLL, .NO_CLOSE, .NO_TITLE}
     // microui keeps container rect in an internal pool; force it every frame
     // so resizing/fullscreen keeps this overlay anchored to top-right.
@@ -108,8 +118,9 @@ updateUi :: proc(ui: ^UI) {
         frame_ms := 1000.0 * time.duration_seconds(ui.profiler.frame_dt)
         mui.label(ui.ctx, fmt.tprintf("FPS: %.1f", ui.profiler.fps))
         mui.label(ui.ctx, fmt.tprintf("Frame: %.3f ms", frame_ms))
-        //mui.label(ui.ctx, fmt.tprintf("Avg: %.3f ms", ui.profiler.mspf))
-        //mui.label(ui.ctx, fmt.tprintf("Delta: %v", ui.profiler.frame_dt))
+        // Enable these when you want more telemetry lines.
+        // mui.label(ui.ctx, fmt.tprintf("Avg: %.3f ms", ui.profiler.mspf))
+        // mui.label(ui.ctx, fmt.tprintf("Delta: %v", ui.profiler.frame_dt))
 
         mui.end_window(ui.ctx)
     }
@@ -117,6 +128,7 @@ updateUi :: proc(ui: ^UI) {
     mui.end(ui.ctx)
 }
 
+// Render microui command list through NanoVG.
 renderUi :: proc(ui: ^UI) {
     if ui == nil || ui.ctx == nil || ui.vg == nil {
         return
@@ -125,6 +137,7 @@ renderUi :: proc(ui: ^UI) {
     win_w, win_h := getWindowSize()
     fb_w, _ := getFramebufferSize()
 
+    // Keep text sharp on HiDPI displays by matching framebuffer/window ratio.
     device_px_ratio: f32 = 1.0
     if win_w > 0 {
         device_px_ratio = f32(fb_w) / f32(win_w)
@@ -137,6 +150,7 @@ renderUi :: proc(ui: ^UI) {
     nvg.FontSize(ui.vg, 18)
     nvg.TextAlign(ui.vg, .LEFT, .TOP)
 
+    // Translate microui's draw commands to NanoVG draw calls.
     cmd: ^mui.Command
     for mui.next_command(ui.ctx, &cmd) {
         #partial switch c in cmd.variant {
@@ -172,6 +186,7 @@ renderUi :: proc(ui: ^UI) {
     nvg.EndFrame(ui.vg)
 }
 
+// GLFW -> microui mouse motion bridge.
 uiMouseMove :: proc(x, y: f64) {
     if GAME == nil || GAME.UI == nil || GAME.UI.ctx == nil {
         return
@@ -179,6 +194,7 @@ uiMouseMove :: proc(x, y: f64) {
     mui.input_mouse_move(GAME.UI.ctx, i32(x), i32(y))
 }
 
+// GLFW -> microui mouse button bridge.
 uiMouseButton :: proc(button, action: i32, x, y: f64) {
     if GAME == nil || GAME.UI == nil || GAME.UI.ctx == nil {
         return
@@ -208,6 +224,7 @@ uiMouseButton :: proc(button, action: i32, x, y: f64) {
     }
 }
 
+// GLFW -> microui wheel bridge.
 uiScroll :: proc(xoffset, yoffset: f64) {
     if GAME == nil || GAME.UI == nil || GAME.UI.ctx == nil {
         return
@@ -215,6 +232,7 @@ uiScroll :: proc(xoffset, yoffset: f64) {
     mui.input_scroll(GAME.UI.ctx, i32(xoffset * 30), i32(yoffset * -30))
 }
 
+// GLFW character callback receives a rune; convert to UTF-8 for microui.
 uiTextInput :: proc(codepoint: rune) {
     if GAME == nil || GAME.UI == nil || GAME.UI.ctx == nil {
         return
@@ -226,6 +244,7 @@ uiTextInput :: proc(codepoint: rune) {
     mui.input_text(GAME.UI.ctx, string(encoded[:width]))
 }
 
+// GLFW -> microui key mapping for navigation/edit shortcuts.
 uiKeyEvent :: proc(key, action, mods: i32) {
     if GAME == nil || GAME.UI == nil || GAME.UI.ctx == nil {
         return
@@ -278,6 +297,7 @@ uiKeyEvent :: proc(key, action, mods: i32) {
     }
 }
 
+// Initialize profiler timestamp baseline.
 initFrameProfiler :: proc(stats: ^Frame_Profiler) {
     if stats == nil {
         return
@@ -287,6 +307,7 @@ initFrameProfiler :: proc(stats: ^Frame_Profiler) {
     stats.frame_dt = 0
 }
 
+// Update instantaneous dt + rolling average FPS/MSPF.
 updateFrameProfiler :: proc(stats: ^Frame_Profiler) {
     if stats == nil {
         return
@@ -309,6 +330,7 @@ updateFrameProfiler :: proc(stats: ^Frame_Profiler) {
     }
 }
 
+// microui callback: estimate/measure text width for layout.
 uiTextWidth :: proc(font: mui.Font, text: string) -> i32 {
     _ = font
     ui := ui_text_owner
@@ -323,6 +345,7 @@ uiTextWidth :: proc(font: mui.Font, text: string) -> i32 {
     return i32(bounds[2] - bounds[0] + 0.5)
 }
 
+// microui callback: return line height used for layout rows.
 uiTextHeight :: proc(font: mui.Font) -> i32 {
     _ = font
     ui := ui_text_owner
@@ -339,6 +362,7 @@ uiTextHeight :: proc(font: mui.Font) -> i32 {
     return i32(line_height + 0.5)
 }
 
+// Query framebuffer pixels (used for DPI ratio and GL viewport logic).
 getFramebufferSize :: proc() -> (width, height: i32) {
     if GAME == nil || GAME.WINDOW == nil {
         return 1, 1
@@ -355,6 +379,7 @@ getFramebufferSize :: proc() -> (width, height: i32) {
     return
 }
 
+// Query logical window size (used for UI anchoring/layout positions).
 getWindowSize :: proc() -> (width, height: i32) {
     if GAME == nil || GAME.WINDOW == nil {
         return 1, 1
@@ -371,6 +396,7 @@ getWindowSize :: proc() -> (width, height: i32) {
     return
 }
 
+// Engine shutdown: release NanoVG, microui, and owning UI object.
 destroyUi :: proc(ui: ^UI) {
     if ui == nil {
         return
