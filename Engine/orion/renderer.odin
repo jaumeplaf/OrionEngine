@@ -39,6 +39,7 @@ initGL :: proc(width: i32, height: i32) {
 	glfw.SetMouseButtonCallback(GAME.WINDOW, mouseCallback)
     glfw.SetScrollCallback(GAME.WINDOW, scrollCallback)
 	glfw.SetCursorPosCallback(GAME.WINDOW, cursorPositionCallback)
+	glfw.SetCharCallback(GAME.WINDOW, charCallback)
 	glfw.SetFramebufferSizeCallback(GAME.WINDOW, framebufferSizeCallback)
     glfw.SetInputMode(GAME.WINDOW, glfw.CURSOR, glfw.CURSOR_NORMAL)
 
@@ -59,6 +60,7 @@ initGL :: proc(width: i32, height: i32) {
     gl.Viewport(0, 0, fb_width, fb_height)
 
     initRendering()
+    initUiRenderer(GAME.UI)
 
 }
 
@@ -132,6 +134,11 @@ drawSystem :: proc(scene: ^Scene) {
             gl.DrawElements(mesh.draw_mode, i32(len(mesh.mesh.indices)), gl.UNSIGNED_SHORT, nil)
         }
     }
+
+    updateUi(GAME.UI)
+    gl.Disable(gl.DEPTH_TEST)
+    renderUi(GAME.UI)
+    gl.Enable(gl.DEPTH_TEST)
 
     glfw.SwapBuffers(GAME.WINDOW)
 

@@ -12,6 +12,7 @@ import gl "vendor:OpenGL"
 
 keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
     context = runtime.default_context()
+    uiKeyEvent(key, action, mods)
 
     if action == glfw.PRESS {
         switch key {
@@ -98,6 +99,7 @@ keyCallback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods:
 
 mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32) {
     context = runtime.default_context()
+    uiMouseButton(button, action, GAME.INPUT.MOUSE_POS[0], GAME.INPUT.MOUSE_POS[1])
     if action == glfw.PRESS {
         scene := GAME.ACTIVE_SCENE
         if scene != nil {
@@ -164,6 +166,7 @@ mouseCallback :: proc "c" (window: glfw.WindowHandle, button, action, mods: i32)
 cursorPositionCallback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
     context = runtime.default_context()
 	GAME.INPUT.MOUSE_POS = [2]f64{xpos, ypos}
+    uiMouseMove(xpos, ypos)
 
     if !GAME.INPUT.MOUSE_LOOK_ACTIVE {
         GAME.INPUT.LAST_MOUSE_POS = GAME.INPUT.MOUSE_POS
@@ -210,6 +213,7 @@ cursorPositionCallback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) 
 
 scrollCallback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
 	context = runtime.default_context()
+    uiScroll(xoffset, yoffset)
     GAME.INPUT.SCROLL_DELTA += yoffset
     if yoffset > 0 {
         GAME.INPUT.SCROLL_UP = true
@@ -247,4 +251,9 @@ framebufferSizeCallback :: proc "c" (window: glfw.WindowHandle, width, height: i
         fmt.println("Framebuffer resized: ", "w-", width, "h-", height)
     }
     defer GAME.RESIZE = false
+}
+
+charCallback :: proc "c" (window: glfw.WindowHandle, codepoint: rune) {
+    context = runtime.default_context()
+    uiTextInput(codepoint)
 }
